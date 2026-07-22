@@ -8,7 +8,7 @@
             "programmer": {
                 "UserInput": ["nanodac2", "14954"],
                 "TempSensor": ["nanodac2", "268"],
-                "RampControl": ["nanodac2", ""],
+                "RampControl": ["nanodac2", "67"],
                 "SolenoidToggle": ["nanodac2", "11923"]
             },
             "pressure": {
@@ -21,5 +21,5 @@
         }
     },
     "SavePath": "auto",
-    "FileName": "auto" 
+    "FileName": "auto"
 }
