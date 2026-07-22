@@ -1,0 +1,25 @@
+{
+    "addresses": {
+        "controllers": {
+            "nanodac1": "192.168.111.222:502",
+            "nanodac2": "192.168.111.223:502"
+        },
+        "modbus": {
+            "programmer": {
+                "UserInput": ["nanodac2", "14954"],
+                "TempSensor": ["nanodac2", "268"],
+                "RampControl": ["nanodac2", ""],
+                "SolenoidToggle": ["nanodac2", "11923"]
+            },
+            "pressure": {
+                "Pressure 1": ["nanodac1", "264"],
+                "Pressure 2": ["nanodac1", "268"],
+                "Pressure 3": ["nanodac2", "256"],
+                "Pressure 4": ["nanodac2", "260"],
+                "Pressure 5": ["nanodac2", "264"]
+            }
+        }
+    },
+    "SavePath": "auto",
+    "FileName": "auto" 
+}
