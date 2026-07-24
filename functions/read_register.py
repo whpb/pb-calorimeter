@@ -1,14 +1,16 @@
 from pymodbus.client.mixin import ModbusClientMixin
 
-# nanodac registers are 32-bit floats over 2 words; flip to "little" here if a
-# real device read comes back garbled.
-WORD_ORDER = "big"
+# matches the unit ID iTools uses to talk to the nanodacs directly (not a gateway setup)
+UNIT_ID = 255
 
 
-def read_register(clients, settings, category, name):
+def read_register(clients, settings, category, name, verbose=False):
+    """Read a named MODBUS register and return its decoded INT16 value."""
     controller, address = settings["addresses"]["modbus"][category][name]
     client = clients[controller]
-    result = client.read_holding_registers(int(address), count=2)
-    return client.convert_from_registers(
-        result.registers, ModbusClientMixin.DATATYPE.FLOAT32, word_order=WORD_ORDER
-    )
+    if verbose:
+        print(f"Reading {category} {name} from {controller} @ {address}")
+    result = client.read_holding_registers(int(address), count=1, device_id=UNIT_ID)
+    if result.isError():
+        raise RuntimeError(f"Read of {category} {name} ({controller} @ {address}) failed: {result}")
+    return client.convert_from_registers(result.registers, ModbusClientMixin.DATATYPE.INT16)

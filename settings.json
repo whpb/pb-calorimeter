@@ -6,7 +6,7 @@
         },
         "modbus": {
             "programmer": {
-                "UserInput": ["nanodac2", "14954"],
+                "UserInput": ["nanodac2", "11928"],
                 "TempSensor": ["nanodac2", "268"],
                 "RampControl": ["nanodac2", "67"],
                 "SolenoidToggle": ["nanodac2", "11923"]

@@ -8,12 +8,19 @@ from functions.test_cracking_pressure import test_cracking_pressure
 POLL_INTERVAL_S = 0.5
 FUNCTIONS = {1: test_cracking_pressure}
 
+print("Loading settings...")
 settings = load_settings()
+
+print("Connecting to controllers...")
 clients = connect_controllers(settings)
+
+print("Starting loop...")
 
 while True:
     value = read_register(clients, settings, "programmer", "UserInput")
-    func = FUNCTIONS.get(int(value))
+    func = FUNCTIONS.get(value)
     if func:
+        print(f"User Value 1 = {value}, running function {value}...")
         func(clients, settings)
+        print("Function finished, resuming polling.")
     time.sleep(POLL_INTERVAL_S)
