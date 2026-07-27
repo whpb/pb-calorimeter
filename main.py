@@ -17,10 +17,14 @@ clients = connect_controllers(settings)
 print("Starting loop...")
 
 while True:
-    value = read_register(clients, settings, "programmer", "UserInput")
-    func = FUNCTIONS.get(value)
-    if func:
-        print(f"User Value 1 = {value}, running function {value}...")
-        func(clients, settings)
-        print("Function finished, resuming polling.")
+    try:
+        value = read_register(clients, settings, "programmer", "UserInput")
+        func = FUNCTIONS.get(value)
+        if func:
+            print(f"User Value 1 = {value}, running function {value}...")
+            func(clients, settings)
+            print("Function finished, resuming polling.")
+    except Exception as e:
+        # catches MODBUS faults without abandoning the loop
+        print(f"Poll cycle error, continuing: {e}")
     time.sleep(POLL_INTERVAL_S)
