@@ -5,7 +5,7 @@ This repository is intended to replace the various scripts written by HL for the
 
 ## Usage
 ### Testing valves
-Make sure to run the polling script before beginning a test. 
+Make sure to run the polling script before beginning a test. To run the program, double click *Run Valve Tests.bat*.
 
 To execute a function, change User Value 1 on the nanodac to the corresponding number. The polling function is latched, so the function will run only once then wait until the value is reset to 0.
 
