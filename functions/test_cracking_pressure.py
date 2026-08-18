@@ -31,5 +31,6 @@ def test_cracking_pressure(clients, settings):
 
     print("Stop signal received, saving results...")
     row = {"Timestamp": time.strftime("%Y-%m-%d %H:%M:%S")}
+    row.update({"Temperature": read_register(clients, settings, "programmer", "TempSensor")})
     row.update({name: cracked.get(name, "") for name in channels})
     save_csv(row, settings)
