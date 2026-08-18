@@ -15,7 +15,7 @@ def test_cracking_pressure(clients, settings):
     cracked = {}
 
     print("Cracking pressure test started. Reset User Value 1 to 0 to stop.")
-    write_register(clients, settings, "programmer", "SolenoidToggle", 1)
+    #write_register(clients, settings, "programmer", "SolenoidToggle", 1)
     try:
         while read_register(clients, settings, "programmer", "UserInput") != 0:
             for name in channels:
@@ -27,7 +27,7 @@ def test_cracking_pressure(clients, settings):
             time.sleep(POLL_INTERVAL_S)
     finally:
         # always de-energize the solenoid, even if a read/write fails mid-test
-        write_register(clients, settings, "programmer", "SolenoidToggle", 0)
+        pass #write_register(clients, settings, "programmer", "SolenoidToggle", 0)
 
     print("Stop signal received, saving results...")
     row = {"Timestamp": time.strftime("%Y-%m-%d %H:%M:%S")}
