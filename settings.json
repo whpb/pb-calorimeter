@@ -12,11 +12,11 @@
                 "SolenoidToggle": ["nanodac2", "11923"]
             },
             "pressure": {
-                "Pressure 1": ["nanodac1", "264"],
-                "Pressure 2": ["nanodac1", "268"],
-                "Pressure 3": ["nanodac2", "256"],
-                "Pressure 4": ["nanodac2", "260"],
-                "Pressure 5": ["nanodac2", "264"]
+                "Pressure 1": ["nanodac1", "264", "mbar"],
+                "Pressure 2": ["nanodac1", "268", "mbar"],
+                "Pressure 3": ["nanodac2", "256", "mbar"],
+                "Pressure 4": ["nanodac2", "260", "mbar"],
+                "Pressure 5": ["nanodac2", "264", "mbar"]
             }
         }
     },

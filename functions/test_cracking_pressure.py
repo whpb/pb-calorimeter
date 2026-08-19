@@ -10,7 +10,7 @@ POLL_INTERVAL_S = 0.5
 def test_cracking_pressure(clients, settings, save_path):
     """Poll each valve's upstream pressure until the monitored UserInput is reset to 0."""
     channels = list(settings["addresses"]["modbus"]["pressure"].keys())
-    state = {name: {"peak": 0, "stall": 0} for name in channels}
+    sensor_dict = settings["addresses"]["modbus"]["pressure"]
     values = {}
 
     print("Cracking pressure test started. Reset User Value 1 to 0 to stop.")
@@ -19,7 +19,7 @@ def test_cracking_pressure(clients, settings, save_path):
         while read_register(clients, settings, "programmer", "UserInput") == 1:
             for name in channels:
                 values[name] = read_register(clients, settings, "pressure", name)
-                print(f"{name} cracked at {values[name]}mbar")
+                print(f"{name} cracked at {values[name]} {sensor_dict[name][2]}")
             time.sleep(POLL_INTERVAL_S)
     finally:
         # always de-energize the solenoid, even if a read/write fails mid-test

@@ -6,7 +6,7 @@ UNIT_ID = 255
 
 def read_register(clients, settings, category, name, verbose=False):
     """Read a named MODBUS register and return its decoded INT16 value."""
-    controller, address = settings["addresses"]["modbus"][category][name]
+    controller, address = settings["addresses"]["modbus"][category][name][:2]
     client = clients[controller]
     if verbose:
         print(f"Reading {category} {name} from {controller} @ {address}")
