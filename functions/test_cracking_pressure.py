@@ -2,28 +2,24 @@ import time
 
 from functions.read_register import read_register
 from functions.write_register import write_register
-from functions.detect_crack import detect_crack
 from functions.save_csv import save_csv
 
 POLL_INTERVAL_S = 0.5
 
 
 def test_cracking_pressure(clients, settings, save_path):
-    """Poll each valve's upstream pressure and latch its peak once it stops rising (cracked), until the operator resets User Value 1."""
+    """Poll each valve's upstream pressure until the monitored UserInput is reset to 0."""
     channels = list(settings["addresses"]["modbus"]["pressure"].keys())
     state = {name: {"peak": 0, "stall": 0} for name in channels}
-    cracked = {}
+    values = {}
 
     print("Cracking pressure test started. Reset User Value 1 to 0 to stop.")
     # write_register(clients, settings, "programmer", "SolenoidToggle", 1)
     try:
         while read_register(clients, settings, "programmer", "UserInput") == 1:
             for name in channels:
-                if name not in cracked:
-                    value = read_register(clients, settings, "pressure", name)
-                    if detect_crack(value, state[name]):
-                        cracked[name] = state[name]["peak"]
-                        print(f"{name} cracked at {cracked[name]}mbar")
+                values[name] = read_register(clients, settings, "pressure", name)
+                print(f"{name} cracked at {values[name]}mbar")
             time.sleep(POLL_INTERVAL_S)
     finally:
         # always de-energize the solenoid, even if a read/write fails mid-test
@@ -34,5 +30,5 @@ def test_cracking_pressure(clients, settings, save_path):
     print("Stop signal received, saving results...")
     row = {"Timestamp": time.strftime("%Y-%m-%d %H:%M:%S")}
     row.update({"Temperature": temp})
-    row.update({name: cracked.get(name, "") for name in channels})
+    row.update({name: values[name] for name in channels})
     save_csv(row, save_path)
