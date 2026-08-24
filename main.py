@@ -5,6 +5,8 @@ from functions.connect_controllers import connect_controllers
 from functions.close_controllers import close_controllers
 from functions.read_register import read_register
 from functions.resolve_save_path import resolve_save_path
+from functions.start_console_log import start_console_log
+from functions.stop_console_log import stop_console_log
 from functions.test_cracking_pressure import test_cracking_pressure
 
 POLL_INTERVAL_S = 0.5
@@ -13,10 +15,11 @@ FUNCTIONS = {1: test_cracking_pressure}
 print("Loading settings...")
 settings = load_settings()
 
+save_path = resolve_save_path(settings)
+log_file = start_console_log(save_path)
+
 print("Connecting to controllers...")
 clients = connect_controllers(settings)
-
-save_path = resolve_save_path(settings)
 
 print("Starting loop...")
 
@@ -37,3 +40,4 @@ while True:
     time.sleep(POLL_INTERVAL_S)
 
 close_controllers(clients)
+stop_console_log(log_file)

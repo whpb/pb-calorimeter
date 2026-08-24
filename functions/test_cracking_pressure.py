@@ -14,12 +14,13 @@ def test_cracking_pressure(clients, settings, save_path):
     values = {}
 
     print("Cracking pressure test started. Reset User Value 1 to 0 to stop.")
+    start = time.monotonic()
     # write_register(clients, settings, "programmer", "SolenoidToggle", 1)
     try:
         while read_register(clients, settings, "programmer", "UserInput") == 1:
             for name in channels:
                 values[name] = read_register(clients, settings, "pressure", name)
-                print(f"{name} cracked at {values[name]} {sensor_dict[name][2]}")
+                print(f"{name}: {values[name]} {sensor_dict[name][2]}")
             time.sleep(POLL_INTERVAL_S)
     finally:
         # always de-energize the solenoid, even if a read/write fails mid-test
@@ -28,7 +29,9 @@ def test_cracking_pressure(clients, settings, save_path):
         print(f"Temperature: {temp} °C")
 
     print("Stop signal received, saving results...")
+    elapsed_min = (time.monotonic() - start) / 60
     row = {"Timestamp": time.strftime("%Y-%m-%d %H:%M:%S")}
+    row.update({"Elapsed (min)": f"{elapsed_min:.2f}"})
     row.update({"Temperature": temp})
     row.update({name: values[name] for name in channels})
     save_csv(row, save_path)
