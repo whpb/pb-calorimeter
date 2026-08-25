@@ -8,10 +8,9 @@ from functions.read_register import read_register
 from functions.resolve_save_path import resolve_save_path
 from functions.start_console_log import start_console_log
 from functions.stop_console_log import stop_console_log
-from functions.test_cracking_pressure import test_cracking_pressure
 
 POLL_INTERVAL_S = 0.2
-FUNCTIONS = {1: test_cracking_pressure}
+FUNCTIONS = {}
 session_start = time.monotonic()
 
 print("Loading settings...")

@@ -1,18 +1,44 @@
-# Valve Tests 2
-Written by WB, 22/07/2026.
+# PB Heat Measurement
+Written by WB, 25/08/2026.
 ## Summary
-This repository is intended to replace the various scripts written by HL for the 7.9mm valve test rig. It comprises a polling script, which listens for user inputs via the nanodac, and a number of functions for automating the test procedure.
+A tool to enable indirect calorimetric measurements on the Polar Bear. 
 
 ## Usage
-### Testing valves
-Make sure to run the polling script before beginning a test. To run the program, double click *Run Valve Tests.bat*.
+### Running a cycle
+Make sure to run the polling script before beginning. To run the program, double click *Run Valve Tests.bat*.
 
 To execute a function, change User Value 1 on the nanodac to the corresponding number. The polling function is latched, so the function will run only once then wait until the value is reset to 0.
 
 Available functions:
-| Number | Function                        |
-| ---    | ---                             |
-| 1      | Test & record cracking pressure |
+| Number | Function                 |
+| ---    | ---                      |
+| 1      | Calorimetric measurement |
+
+#### Calorimetric measurement
+
+The calorimetric measurement function comprises three steps:
+
+1. Start: take baseline work reading, initiate loop
+2. Loop: calculate instantaneous work and rolling energy total based on heater utilisation and plate temperature; these equations reference the data in pb_cooling_capacity.csv
+3. End: close results file and produce report detailing work curve (relative to baseline) and total energy added or removed
+
+This function applies the principle of conservation of energy to estimate the energy change caused by a source or sink placed on the plate.
+
+Before starting, the Polar Bear is instructed to hold a control temperature. This provides a stable baseline from which deviations can be measured.
+
+The function is started, and begins performing the following calculation every time step:
+
+    Q_relative = Q_abs - Q_baseline
+
+Where Q_abs is interpolated from the Polar Bear's characteristic cooling power-temperature curve, and Q_baseline is the initial value of Q_abs. All Q values are measured in Watts.
+
+The rolling total energy is also calculated:
+
+    E_t = E_t-1 + Q_relative * t_step
+
+Where E_t-1 is the total energy as calculated in the previous time step, and t_step is the size of the time step in seconds.
+
+
 
 ### Settings
 To change the program settings, open the file `settings.json` in a text editor.
@@ -26,19 +52,13 @@ Hardware addresses are stored in the following structure:
     │   ├── "name B": "xxx.xxx.xxx.xxx:xxxxx"
     │   └── etc...
     └── modbus
-        ├── programmer
-        │   ├── "UserInput":   ["controller name", "modbus address"]
-        │   ├── "TempSensor":  ["controller name", "modbus address"]
-        │   └── "RampControl": ["controller name", "modbus address"]
-        └── pressure
-            ├── "ColNameA": ["controller name", "modbus address"]
-            ├── "ColNameB": ["controller name", "modbus address"]
-            └── etc...
+        └── programmer
+             └── "UserInput":   ["controller name", "modbus address"]
 
 *Note that "etc..." indicates an arbitrary number of entries. Ensure "controller name" fields match the controller name exactly.*
 
 #### File handling
-By default, files are saved in the format `Documents/ValveTests2/YYYY-MM-DDThh-mm-ss.csv` (based roughly on ISO 8601).
+By default, files are saved in the format `Documents/PBCal/YYYY-MM-DDThh-mm-ss.csv` (based loosely on ISO 8601).
 
 The available settings are listed below.
 

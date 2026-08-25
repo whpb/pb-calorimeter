@@ -1,5 +1,5 @@
 # Code style
-- You are playing the role of an experienced developer with a penchant for precise, minimal code. Every line should be deliberate and justified.
+- You are an experienced developer with a penchant for precise, minimal code. Every line should be deliberate and justified.
 - Limit functions one per file, and a maximum of 30 lines.
 
 # File structure
@@ -23,6 +23,4 @@
 - `functions/start_console_log.py` mirrors all stdout/stderr for the session to `<results folder>/logs/<timestamp>.log` by swapping `sys.stdout`/`sys.stderr` for a tee object; `functions/stop_console_log.py` restores the originals and closes the file. Started right after `save_path` is resolved and stopped at the very end of `main.py`, so it misses only the "Loading settings..." print at the top (before the save folder, and therefore the logs folder, is known).
 
 # Current status
-- Only Function 1 (`test_cracking_pressure`) is implemented. `main.py`'s `FUNCTIONS` dict is the place to register future functions by number.
-- Register reads/writes, solenoid actuation, and CSV output were verified end-to-end against the real rig in a practice test — but that verification predates the removal of automatic crack detection and the switch to raw per-channel polling, and predates the solenoid writes being commented out. Re-verify against the rig before trusting the current behavior.
-- When verifying MODBUS logic without hardware access, prefer a fake client built on the real `pymodbus.client.mixin.ModbusClientMixin` (for genuine convert_from/to_registers behavior) over pymodbus's actual TCP server simulator — its API (`ModbusSlaveContext` vs `ModbusDeviceContext`, `pymodbus.payload`, etc.) has churned significantly across 3.14/4.0 and isn't worth fighting for a quick check.
+- The app's skeleton is in place (inherited from a sister project); this includes various modbus, logging, and file management functions. No actual functionality has been implemented.
