@@ -38,7 +38,7 @@ The rolling total energy is also calculated:
 
 Where E_t-1 is the total energy as calculated in the previous time step, and t_step is the size of the time step in seconds.
 
-
+TODO: FINISH WRITING THIS!!
 
 ### Settings
 To change the program settings, open the file `settings.json` in a text editor.
