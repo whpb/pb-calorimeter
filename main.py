@@ -3,6 +3,7 @@ import time
 from functions.load_settings import load_settings
 from functions.connect_controllers import connect_controllers
 from functions.close_controllers import close_controllers
+from functions.keep_alive import keep_alive
 from functions.read_register import read_register
 from functions.resolve_save_path import resolve_save_path
 from functions.start_console_log import start_console_log
@@ -11,6 +12,7 @@ from functions.test_cracking_pressure import test_cracking_pressure
 
 POLL_INTERVAL_S = 0.2
 FUNCTIONS = {1: test_cracking_pressure}
+session_start = time.monotonic()
 
 print("Loading settings...")
 settings = load_settings()
@@ -33,8 +35,10 @@ while True:
         func = FUNCTIONS.get(value)
         if func:
             print(f"User Value 1 = {value}, running function {value}...")
-            func(clients, settings, save_path)
+            func(clients, settings, save_path, session_start)
             print("Function finished, resuming polling.")
+        else:
+            keep_alive(clients, settings)
     except Exception as e:
         # catches MODBUS faults without abandoning the loop
         print(f"Poll cycle error, continuing: {e}")

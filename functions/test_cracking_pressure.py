@@ -7,14 +7,13 @@ from functions.save_csv import save_csv
 POLL_INTERVAL_S = 0.5
 
 
-def test_cracking_pressure(clients, settings, save_path):
+def test_cracking_pressure(clients, settings, save_path, session_start):
     """Poll each valve's upstream pressure until the monitored UserInput is reset to 0."""
     channels = list(settings["addresses"]["modbus"]["pressure"].keys())
     sensor_dict = settings["addresses"]["modbus"]["pressure"]
     values = {}
 
     print("Cracking pressure test started. Reset User Value 1 to 0 to stop.")
-    start = time.monotonic()
     # write_register(clients, settings, "programmer", "SolenoidToggle", 1)
     try:
         while read_register(clients, settings, "programmer", "UserInput") == 1:
@@ -29,7 +28,7 @@ def test_cracking_pressure(clients, settings, save_path):
         print(f"Temperature: {temp} °C")
 
     print("Stop signal received, saving results...")
-    elapsed_min = (time.monotonic() - start) / 60
+    elapsed_min = (time.monotonic() - session_start) / 60
     row = {"Timestamp": time.strftime("%Y-%m-%d %H:%M:%S")}
     row.update({"Elapsed (min)": f"{elapsed_min:.2f}"})
     row.update({"Temperature": temp})
