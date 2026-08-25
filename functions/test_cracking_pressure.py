@@ -31,6 +31,11 @@ def test_cracking_pressure(clients, settings, save_path, session_start):
     elapsed_min = (time.monotonic() - session_start) / 60
     row = {"Timestamp": time.strftime("%Y-%m-%d %H:%M:%S")}
     row.update({"Elapsed (min)": f"{elapsed_min:.2f}"})
-    row.update({"Temperature": temp})
-    row.update({name: values[name] for name in channels})
+    row.update({"Temperature (C)": temp})
+    try:
+        row.update({f"{name} ({sensor_dict[name][2]})": values[name] for name in channels})
+    except IndexError:
+        # if units cannot be retrieved, revert to unitless headings
+        row.update({name: values[name] for name in channels})
     save_csv(row, save_path)
+    
