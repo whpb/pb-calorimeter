@@ -19,13 +19,13 @@ def test_cracking_pressure(clients, settings, save_path):
     try:
         while read_register(clients, settings, "programmer", "UserInput") == 1:
             for name in channels:
-                values[name] = read_register(clients, settings, "pressure", name)
+                values[name] = read_register(clients, settings, "pressure", name, float=True)
                 print(f"{name}: {values[name]} {sensor_dict[name][2]}")
             time.sleep(POLL_INTERVAL_S)
     finally:
         # always de-energize the solenoid, even if a read/write fails mid-test
         # write_register(clients, settings, "programmer", "SolenoidToggle", 0)
-        temp = read_register(clients, settings, "programmer", "TempSensor")/100
+        temp = read_register(clients, settings, "programmer", "TempSensor", float=True)
         print(f"Temperature: {temp} °C")
 
     print("Stop signal received, saving results...")
