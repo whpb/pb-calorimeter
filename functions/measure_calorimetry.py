@@ -16,6 +16,7 @@ def measure_calorimetry(clients, settings, save_path, session_start):
     curve = load_cooling_curve()
     temperature, utilisation, baseline = calculate_heat_flow(clients, settings, curve)
     check_baseline(temperature, utilisation, baseline)
+    baseline_temperature = temperature
     history, energy, last = [], 0.0, time.monotonic()
     while read_register(clients, settings, "programmer", "UserInput") == 1:
         time.sleep(TIME_STEP_S)
@@ -30,7 +31,7 @@ def measure_calorimetry(clients, settings, save_path, session_start):
         q_relative = q_abs - baseline
         energy += q_relative * step
         elapsed = (now - session_start) / 60
-        history.append((elapsed, q_relative))
+        history.append((elapsed, q_relative, temperature - baseline_temperature))
         save_csv({
             "Timestamp": datetime.now().isoformat(timespec="seconds"),
             "Elapsed (min)": round(elapsed, 3),

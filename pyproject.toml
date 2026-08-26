@@ -20,3 +20,13 @@ dependencies = [
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.1.1,<10.0.0)"
+]
+
+[tool.pytest.ini_options]
+# the repo is a script project, not a package, so tests import functions/ from the root
+pythonpath = ["."]
+testpaths = ["tests"]

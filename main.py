@@ -36,7 +36,9 @@ while True:
         if func:
             print(f"User Value 1 = {value}, running function {value}...")
             func(clients, settings, save_path, session_start)
-            print("Function finished, resuming polling.")
+            # a completed measurement is the whole job; don't re-enter the poll loop
+            print("Function finished, terminating.")
+            break
         else:
             keep_alive(clients, settings)
     except Exception as e:
