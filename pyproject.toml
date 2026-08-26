@@ -2,9 +2,9 @@
 package-mode = false
 
 [project]
-name = "valve-tests-2"
+name = "pb-calorimeter"
 version = "0.1.0"
-description = "Replacement for HL's ValveTests scripts"
+description = "Indirect calorimetric measurements on the Polar Bear"
 authors = [
     {name = "Will Beamish"}
 ]
@@ -12,7 +12,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "pathlib (>=1.0.1,<2.0.0)",
-    "pymodbus (>=3.14.0,<4.0.0)"
+    "pymodbus (>=3.14.0,<4.0.0)",
+    "matplotlib (>=3.10.0,<4.0.0)"
 ]
 
 

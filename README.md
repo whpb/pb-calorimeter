@@ -5,7 +5,7 @@ A tool to enable indirect calorimetric measurements on the Polar Bear.
 
 ## Usage
 ### Running a cycle
-Make sure to run the polling script before beginning. To run the program, double click *Run Valve Tests.bat*.
+Make sure to run the polling script before beginning. To run the program, double click *Run.bat*.
 
 To execute a function, change User Value 1 on the nanodac to the corresponding number. The polling function is latched, so the function will run only once then wait until the value is reset to 0.
 
@@ -38,7 +38,12 @@ The rolling total energy is also calculated:
 
 Where E_t-1 is the total energy as calculated in the previous time step, and t_step is the size of the time step in seconds.
 
-TODO: FINISH WRITING THIS!!
+These values are written to a timestamped row in the results dataframe.
+
+When the function ends, the results file is closed, a final energy is calculated, and a report is generated. This includes:
+
+- Q_relative - time plot
+- Total energy change
 
 ### Settings
 To change the program settings, open the file `settings.json` in a text editor.

@@ -9,7 +9,7 @@ DEFAULT_FILENAME_PATTERN = "%Y-%m-%dT%H-%M-%S"
 def resolve_save_path(settings):
     """Resolve the SavePath/FileName settings to a concrete CSV file path."""
     if settings["SavePath"] == "auto":
-        folder = Path.home() / "Documents" / "ValveTests2"
+        folder = Path.home() / "Documents" / "PBCal"
     else:
         folder = Path(settings["SavePath"])
     folder.mkdir(parents=True, exist_ok=True)

@@ -2,7 +2,7 @@ import csv
 from pathlib import Path
 
 
-def save_csv(row, path):
+def save_csv(row, path, quiet=False):
     """Append a single result row to the CSV file at path, writing a header if new."""
     is_new = not Path(path).exists()
     with open(path, "a", newline="") as f:
@@ -10,4 +10,5 @@ def save_csv(row, path):
         if is_new:
             writer.writeheader()
         writer.writerow(row)
-    print(f"Saved results to {path}")
+    if not quiet:
+        print(f"Saved results to {path}")

@@ -1,6 +1,7 @@
 import time
 
 from functions.load_settings import load_settings
+from functions.measure_calorimetry import measure_calorimetry
 from functions.connect_controllers import connect_controllers
 from functions.close_controllers import close_controllers
 from functions.keep_alive import keep_alive
@@ -10,7 +11,7 @@ from functions.start_console_log import start_console_log
 from functions.stop_console_log import stop_console_log
 
 POLL_INTERVAL_S = 0.2
-FUNCTIONS = {}
+FUNCTIONS = {1: measure_calorimetry}
 session_start = time.monotonic()
 
 print("Loading settings...")
