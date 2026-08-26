@@ -12,7 +12,6 @@ from functions.stop_console_log import stop_console_log
 
 POLL_INTERVAL_S = 0.2
 FUNCTIONS = {1: measure_calorimetry}
-session_start = time.monotonic()
 
 print("Loading settings...")
 settings = load_settings()
@@ -36,7 +35,7 @@ while True:
         if func:
             print(f"User Value 1 = {value}, running function {value}...")
             # resolved per call, so a later run never lands on an earlier one's results
-            func(clients, settings, resolve_save_path(settings), session_start)
+            func(clients, settings, resolve_save_path(settings))
             print("Function finished, resuming polling.")
         else:
             keep_alive(clients, settings)

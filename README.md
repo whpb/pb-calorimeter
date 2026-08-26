@@ -30,7 +30,7 @@ The function is started, and begins performing the following calculation every t
 
     Q_relative = Q_abs - Q_baseline
 
-Where Q_abs is interpolated from the Polar Bear's characteristic cooling power-temperature curve, and Q_baseline is the initial value of Q_abs. All Q values are measured in Watts.
+Where Q_abs is interpolated from the Polar Bear's characteristic cooling power-temperature curve, and Q_baseline is the initial value of Q_abs, averaged over 10 minutes. All Q values are measured in Watts.
 
 The rolling total energy is also calculated:
 

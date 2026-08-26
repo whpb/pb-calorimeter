@@ -1,64 +1,26 @@
 import csv
-import time
 
 import pytest
 
-from conftest import FakeClient, FakeResult, DATATYPE
+from conftest import ScriptedClient
+from functions import measure_baseline as baseline_module
 from functions import measure_calorimetry as module
-from pymodbus.client.mixin import ModbusClientMixin
 
 USER_INPUT, PLATE_TEMP, HEATER_UTIL = 14954, 33280, 43874
 
 
-class ScriptedClient(FakeClient):
-    """Replays a list of (plate C, heater %) samples; None stages a MODBUS fault."""
-
-    def __init__(self, samples):
-        super().__init__()
-        self.samples, self.index, self.current = samples, 0, None
-
-    def read_holding_registers(self, address, count=1, device_id=None):
-        self.reads.append((address, count, device_id))
-        if address == USER_INPUT:  # the run ends once the script is exhausted
-            return self._encode(1 if self.index < len(self.samples) else 0, DATATYPE.INT16)
-        if address == PLATE_TEMP:
-            self.current, self.index = self.samples[self.index], self.index + 1
-            return FakeResult(error=True) if self.current is None else self._encode(
-                self.current[0], DATATYPE.FLOAT32)
-        return FakeResult(error=True) if self.current is None else self._encode(
-            self.current[1], DATATYPE.INT16)
-
-    @staticmethod
-    def _encode(value, datatype):
-        return FakeResult(ModbusClientMixin.convert_to_registers(value, datatype))
-
-
-class Clock:
-    """A fake clock that only sleep advances, so a skipped sample still costs its second."""
-
-    def __init__(self):
-        self.now = 0.0
-
-    def sleep(self, seconds):
-        self.now += seconds
-
-    def monotonic(self):
-        return self.now
-
-
 @pytest.fixture
-def rig(monkeypatch, curve):
+def rig(monkeypatch, curve, clock):
     """Run instantly on the fake clock, against the simple 1 C per % curve."""
-    clock = Clock()
     monkeypatch.setattr(module, "load_cooling_curve", lambda: curve)
-    monkeypatch.setattr(time, "sleep", clock.sleep)
-    monkeypatch.setattr(time, "monotonic", clock.monotonic)
+    # a zero-length baseline period collapses to a single sample, as before averaging
+    monkeypatch.setattr(baseline_module, "BASELINE_PERIOD_S", 0.0)
     return clock
 
 
 def _run(samples, tmp_path):
     clients = {"pb1": ScriptedClient(samples)}
-    module.measure_calorimetry(clients, _settings(), tmp_path / "results.csv", 0.0)
+    module.measure_calorimetry(clients, _settings(), tmp_path / "results.csv")
     return clients["pb1"]
 
 
@@ -133,3 +95,28 @@ def test_stops_as_soon_as_userinput_leaves_one(rig, tmp_path, capsys):
     assert not (tmp_path / "results.csv").exists()
     assert "No samples recorded" in capsys.readouterr().out
     assert client.reads.count((USER_INPUT, 1, 255)) == 1
+
+
+def test_elapsed_is_measured_per_run_not_per_session(rig, tmp_path):
+    """A later run in the same session must still start its own clock at zero."""
+    rig.now = 2700.0  # three quarters of an hour into the session
+    _run([(25.0, 25), (25.0, 15)], tmp_path)
+    elapsed = float(_rows(tmp_path / "results.csv")[0]["Elapsed (min)"])
+    assert elapsed == pytest.approx(1 / 60, abs=1e-3)
+
+
+def test_elapsed_excludes_the_baselining_period(monkeypatch, rig, tmp_path):
+    """t=0 is the end of baselining, so the work curve starts where the measurement does."""
+    monkeypatch.setattr(baseline_module, "BASELINE_PERIOD_S", 119.0)
+    _run([(25.0, 25)] * 120 + [(25.0, 15)], tmp_path)
+    rows = _rows(tmp_path / "results.csv")
+    assert len(rows) == 1
+    assert float(rows[0]["Elapsed (min)"]) == pytest.approx(1 / 60, abs=1e-3)
+
+
+def test_measures_against_the_averaged_baseline(monkeypatch, rig, tmp_path):
+    """The swing during baselining is cancelled, not carried into every Q_relative."""
+    monkeypatch.setattr(baseline_module, "BASELINE_PERIOD_S", 119.0)
+    swing = [(25.0, 20), (25.0, 30)] * 60  # averages to 25 %, so the baseline is 0 W
+    _run(swing + [(25.0, 15)], tmp_path)
+    assert float(_rows(tmp_path / "results.csv")[0]["Q_relative (W)"]) == pytest.approx(19.3)

@@ -5,19 +5,20 @@ from functions.load_cooling_curve import load_cooling_curve
 from functions.calculate_heat_flow import calculate_heat_flow
 from functions.check_baseline import check_baseline
 from functions.generate_report import generate_report
+from functions.measure_baseline import measure_baseline
 from functions.read_register import read_register
 from functions.save_csv import save_csv
 
 TIME_STEP_S = 1.0
 
 
-def measure_calorimetry(clients, settings, save_path, session_start):
+def measure_calorimetry(clients, settings, save_path):
     """Integrate the plate's heat flow against its unloaded baseline until UserInput leaves 1."""
     curve = load_cooling_curve()
-    temperature, utilisation, baseline = calculate_heat_flow(clients, settings, curve)
-    check_baseline(temperature, utilisation, baseline)
-    baseline_temperature = temperature
-    history, energy, last = [], 0.0, time.monotonic()
+    baseline_temperature, baseline_utilisation, baseline = measure_baseline(clients, settings, curve, TIME_STEP_S)
+    check_baseline(baseline_temperature, baseline_utilisation, baseline)
+    history, energy = [], 0.0
+    start = last = time.monotonic()  # t=0 is the end of baselining, not the start of the session
     while read_register(clients, settings, "programmer", "UserInput") == 1:
         time.sleep(TIME_STEP_S)
         try:
@@ -26,11 +27,10 @@ def measure_calorimetry(clients, settings, save_path, session_start):
             print(f"Sample skipped, integrating through it: {e}")
             continue
         now = time.monotonic()
-        # measured rather than nominal, so a slow or skipped read can't corrupt the integral
-        step, last = now - last, now
+        step, last = now - last, now  # measured, not nominal: a slow read must not skew the integral
         q_relative = q_abs - baseline
         energy += q_relative * step
-        elapsed = (now - session_start) / 60
+        elapsed = (now - start) / 60
         history.append((elapsed, q_relative, temperature - baseline_temperature))
         save_csv({
             "Timestamp": datetime.now().isoformat(timespec="seconds"),

@@ -1,4 +1,5 @@
 import sys
+import time
 
 import pytest
 from pymodbus.client.mixin import ModbusClientMixin
@@ -44,6 +45,59 @@ class FakeClient:
 
     def close(self):
         self.closed = True
+
+
+class ScriptedClient(FakeClient):
+    """Replays a list of (plate C, heater %) samples; None stages a MODBUS fault."""
+
+    USER_INPUT, PLATE_TEMP, HEATER_UTIL = 14954, 33280, 43874
+
+    def __init__(self, samples, user_input=None):
+        super().__init__()
+        self.samples, self.index, self.current = samples, 0, None
+        # by default the run ends once the script is exhausted
+        self.user_input = user_input or (lambda: 1 if self.index < len(self.samples) else 0)
+
+    def read_holding_registers(self, address, count=1, device_id=None):
+        self.reads.append((address, count, device_id))
+        if address == self.USER_INPUT:
+            return self._encode(self.user_input(), DATATYPE.INT16)
+        if address == self.PLATE_TEMP:
+            self.current = self.samples[min(self.index, len(self.samples) - 1)]
+            self.index += 1
+            return self._sample(0, DATATYPE.FLOAT32)
+        return self._sample(1, DATATYPE.INT16)
+
+    def _sample(self, field, datatype):
+        if self.current is None:
+            return FakeResult(error=True)
+        return self._encode(self.current[field], datatype)
+
+    @staticmethod
+    def _encode(value, datatype):
+        return FakeResult(ModbusClientMixin.convert_to_registers(value, datatype))
+
+
+class Clock:
+    """A fake clock that only sleep advances, so a skipped sample still costs its time step."""
+
+    def __init__(self):
+        self.now = 0.0
+
+    def sleep(self, seconds):
+        self.now += seconds
+
+    def monotonic(self):
+        return self.now
+
+
+@pytest.fixture
+def clock(monkeypatch):
+    """Run time-driven loops instantly, with every interval exactly as long as it claims."""
+    fake = Clock()
+    monkeypatch.setattr(time, "sleep", fake.sleep)
+    monkeypatch.setattr(time, "monotonic", fake.monotonic)
+    return fake
 
 
 @pytest.fixture(autouse=True)
