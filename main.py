@@ -17,8 +17,8 @@ session_start = time.monotonic()
 print("Loading settings...")
 settings = load_settings()
 
-save_path = resolve_save_path(settings)
-log_file = start_console_log(save_path)
+# only the folder is used here; each run resolves its own results file below
+log_file = start_console_log(resolve_save_path(settings))
 
 print("Connecting to controllers...")
 clients = connect_controllers(settings)
@@ -35,10 +35,9 @@ while True:
         func = FUNCTIONS.get(value)
         if func:
             print(f"User Value 1 = {value}, running function {value}...")
-            func(clients, settings, save_path, session_start)
-            # a completed measurement is the whole job; don't re-enter the poll loop
-            print("Function finished, terminating.")
-            break
+            # resolved per call, so a later run never lands on an earlier one's results
+            func(clients, settings, resolve_save_path(settings), session_start)
+            print("Function finished, resuming polling.")
         else:
             keep_alive(clients, settings)
     except Exception as e:

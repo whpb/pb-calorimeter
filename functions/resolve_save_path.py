@@ -19,4 +19,6 @@ def resolve_save_path(settings):
         name = datetime.now().strftime(pattern)
     else:
         name = next_sequential_name(folder, pattern)
-    return folder / f"{name}.csv"
+    path = folder / f"{name}.csv"
+    # two runs inside one second would otherwise share a timestamp, and a file
+    return path if not path.exists() else folder / f"{next_sequential_name(folder, name)}.csv"

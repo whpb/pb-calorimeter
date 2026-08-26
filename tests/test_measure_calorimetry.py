@@ -125,7 +125,7 @@ def test_records_temperature_change_from_baseline_for_the_plot(rig, tmp_path, mo
 
 def test_reports_and_plots_at_the_end(rig, tmp_path):
     _run([(25.0, 25), (25.0, 15)], tmp_path)
-    assert (tmp_path / "results.txt").exists() and (tmp_path / "results.png").exists()
+    assert (tmp_path / "results.pdf").exists() and (tmp_path / "results.png").exists()
 
 
 def test_stops_as_soon_as_userinput_leaves_one(rig, tmp_path, capsys):
