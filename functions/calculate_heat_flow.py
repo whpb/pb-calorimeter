@@ -6,7 +6,7 @@ def calculate_heat_flow(clients, settings, curve):
     """Sample the plate and return (temperature, heater utilisation, net heat flow in watts)."""
     heater_power = settings["HeaterPower"]
     temperature = read_register(clients, settings, "programmer", "PlateTemp", float=True)
-    utilisation = read_register(clients, settings, "programmer", "HeaterUtil")
+    utilisation = read_register(clients, settings, "programmer", "HeaterUtil", float=True)
     cooling = interpolate_cooling_power(temperature, curve, heater_power)
     # the gap between the heater output an unloaded plate would need here and what it actually
     # uses is the heat an external source is supplying; zero when nothing is on the plate
