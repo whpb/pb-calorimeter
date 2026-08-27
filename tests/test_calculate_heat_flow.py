@@ -6,7 +6,7 @@ from functions.calculate_heat_flow import calculate_heat_flow
 
 def _rig(temperature, utilisation):
     return {"pb1": FakeClient({33280: (temperature, DATATYPE.FLOAT32),
-                               43874: (utilisation, DATATYPE.INT16)})}
+                               43874: (utilisation, DATATYPE.FLOAT32)})}
 
 
 def test_is_zero_when_the_plate_is_unloaded(settings, curve):
@@ -37,11 +37,12 @@ def test_scales_with_the_configured_heater_power(settings, curve):
     assert q_abs == pytest.approx(10.0)
 
 
-def test_reads_temperature_as_float32_and_utilisation_as_int16(settings, curve):
+def test_reads_both_channels_as_float32(settings, curve):
+    """Both pb1 channels span two registers; a wrong width returns garbage, not a near miss."""
     clients = _rig(25.0, 25)
     calculate_heat_flow(clients, settings, curve)
     counts = {address: count for address, count, _ in clients["pb1"].reads}
-    assert counts == {33280: 2, 43874: 1}
+    assert counts == {33280: 2, 43874: 2}
 
 
 def test_propagates_a_modbus_fault(settings, curve):

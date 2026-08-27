@@ -1,6 +1,11 @@
+import subprocess
 import sys
+import time
+from pathlib import Path
 
 import pytest
+
+REPO = Path(__file__).resolve().parent.parent
 
 from functions.start_console_log import start_console_log, _Tee
 from functions.stop_console_log import stop_console_log
@@ -66,3 +71,30 @@ def test_tee_forwards_writes_and_flushes_to_every_stream():
     tee.write("x")
     tee.flush()
     assert (a.data, b.data) == ("x", "x") and a.flushed and b.flushed
+
+
+def test_the_log_survives_a_hard_kill(tmp_path):
+    """The window closing must not take the session's log with it, hence line buffering."""
+    driver = tmp_path / "driver.py"
+    driver.write_text(f"""
+import pathlib, sys, time
+sys.path.insert(0, {str(REPO)!r})
+from functions.start_console_log import start_console_log
+
+here = pathlib.Path({str(tmp_path)!r})
+start_console_log(here / "results.csv")
+print("MARKER")
+(here / "printed").write_text("y")   # a separately closed file, so it cannot vouch for itself
+time.sleep(60)
+""", encoding="utf-8")
+    process = subprocess.Popen([sys.executable, str(driver)])
+    try:
+        deadline = time.monotonic() + 30
+        while not (tmp_path / "printed").exists() and time.monotonic() < deadline:
+            time.sleep(0.05)
+        assert (tmp_path / "printed").exists(), "the child never reached its print"
+    finally:
+        process.kill()  # TerminateProcess on Windows: no atexit, no close, no flush
+        process.wait()
+    logged = next((tmp_path / "logs").iterdir()).read_text(encoding="utf-8")
+    assert "MARKER" in logged

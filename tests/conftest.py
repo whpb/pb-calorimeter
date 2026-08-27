@@ -66,7 +66,7 @@ class ScriptedClient(FakeClient):
             self.current = self.samples[min(self.index, len(self.samples) - 1)]
             self.index += 1
             return self._sample(0, DATATYPE.FLOAT32)
-        return self._sample(1, DATATYPE.INT16)
+        return self._sample(1, DATATYPE.FLOAT32)
 
     def _sample(self, field, datatype):
         if self.current is None:
@@ -133,7 +133,7 @@ def client():
     return FakeClient({
         14954: (1, DATATYPE.INT16),
         33280: (25.0, DATATYPE.FLOAT32),
-        43874: (40, DATATYPE.INT16),
+        43874: (40.0, DATATYPE.FLOAT32),
     })
 
 
