@@ -11,7 +11,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo Starting valve tests. Close this window or press Ctrl+C to stop.
+echo Starting program. Close this window or press Ctrl+C to stop.
 echo.
 poetry run python main.py
 
