@@ -20,6 +20,9 @@ def measure_calorimetry(clients, settings, save_path):
     baseline = summarise_window(samples, "Q_abs (W)", windows["baseline"])
     plate = summarise_window(samples, "Plate temperature (C)", windows["baseline"])
     check_baseline(plate["mean"], baseline["mean"], baseline["spread"])
-    energy = integrate_energy(samples, baseline["mean"], plate["mean"], windows)
+    master = None
+    if any(row["Master temperature (C)"] is not None for row in samples):
+        master = summarise_window(samples, "Master temperature (C)", windows["baseline"])["mean"]
+    energy = integrate_energy(samples, baseline["mean"], plate["mean"], master, windows)
     rewrite_csv(samples, save_path)
     generate_report(samples, windows, baseline, energy, save_path)

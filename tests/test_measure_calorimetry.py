@@ -71,7 +71,7 @@ def test_the_rewritten_file_carries_the_derived_columns(rig, tmp_path):
     assert list(_rows(tmp_path / "results.csv")[0]) == [
         "Timestamp", "Elapsed (min)", "Plate temperature (C)", "Master temperature (C)",
         "Heater utilisation (%)", "Q_abs (W)", "Q_relative (W)",
-        "Plate temperature change (C)", "Energy (J)", "Zone"]
+        "Plate temperature change (C)", "Master temperature change (C)", "Energy (J)", "Zone"]
 
 
 def test_every_sample_is_labelled_with_its_zone(rig, tmp_path):

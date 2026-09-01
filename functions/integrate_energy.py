@@ -1,12 +1,15 @@
-def integrate_energy(samples, baseline, baseline_temperature, windows):
+def integrate_energy(samples, baseline, plate_baseline, master_baseline, windows):
     """Fill the derived columns, tag each sample's zone, and return the experiment energy."""
     baseline_start, baseline_end = windows["baseline"]
     start, end = windows["experiment"]
     energy, previous = 0.0, None
     for row in samples:
-        minutes = row["Elapsed (min)"]
+        minutes, probe = row["Elapsed (min)"], row["Master temperature (C)"]
         row["Q_relative (W)"] = round(row["Q_abs (W)"] - baseline, 4)
-        row["Plate temperature change (C)"] = round(row["Plate temperature (C)"] - baseline_temperature, 3)
+        row["Plate temperature change (C)"] = round(row["Plate temperature (C)"] - plate_baseline, 3)
+        # blank while the probe has no address configured, rather than a misleading zero
+        row["Master temperature change (C)"] = None if master_baseline is None or probe is None \
+            else round(probe - master_baseline, 3)
         inside = start <= minutes <= end
         if inside:
             # measured interval, so a skipped sample integrates as a zero-order hold

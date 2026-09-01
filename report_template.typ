@@ -32,7 +32,8 @@
   margin: 2cm,
   background: align(top, align(right, (box(image("assets/CRD Logo.png", width: 2cm), inset: 2cm))))
   )
-#set par(justify: true)
+#set par(justify: false)
+#set table(inset: (left: 0pt, rest: 5pt))
 
 = Calorimetry report
 

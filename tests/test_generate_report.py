@@ -12,7 +12,8 @@ def _samples():
     for i in range(6):
         zone = "baseline" if i <= 2 else ("experiment" if i >= 3 else "")
         rows.append({"Elapsed (min)": i / 10, "Q_relative (W)": [1.0, 2.0, 1.5, 19.3, -30.0, 12.0][i],
-                     "Plate temperature change (C)": -0.5 * i, "Zone": zone})
+                     "Plate temperature change (C)": -0.5 * i,
+                     "Master temperature change (C)": 0.25 * i, "Zone": zone})
     return rows
 
 

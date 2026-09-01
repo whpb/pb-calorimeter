@@ -25,8 +25,10 @@ SUMMARY = {
 def run_folder(tmp_path):
     """A results folder holding the work-curve PNG the template expects to find."""
     save_path = tmp_path / "results.csv"
-    samples = [{"Elapsed (min)": 0.0, "Q_relative (W)": 0.0, "Plate temperature change (C)": 0.0},
-               {"Elapsed (min)": 1.0, "Q_relative (W)": 19.3, "Plate temperature change (C)": -0.5}]
+    samples = [{"Elapsed (min)": 0.0, "Q_relative (W)": 0.0, "Plate temperature change (C)": 0.0,
+                "Master temperature change (C)": 0.0},
+               {"Elapsed (min)": 1.0, "Q_relative (W)": 19.3, "Plate temperature change (C)": -0.5,
+                "Master temperature change (C)": 1.5}]
     plot_work_curve(samples, {"baseline": (0.0, 0.5), "experiment": (0.5, 1.0)}, save_path)
     return save_path
 
