@@ -8,11 +8,13 @@ from functions.save_csv import save_csv
 TIME_STEP_S = 1.0
 
 
-def record_samples(clients, settings, curve, save_path):
-    """Sample the plate every TIME_STEP_S until UserInput leaves 1, appending each row as it lands."""
+def record_samples(clients, settings, curve, save_path, should_continue):
+    """Sample the plate every TIME_STEP_S while should_continue holds, appending each row as it lands."""
     probe = settings["addresses"]["modbus"]["programmer"]["MasterTemp"][1] is not None
     samples, start = [], time.monotonic()
-    while read_register(clients, settings, "programmer", "UserInput") == 1:
+    # the caller owns the stop condition: User Value 1 for a normal run, the interface
+    # for a forced one, so this loop never needs to know which mode it is in
+    while should_continue():
         time.sleep(TIME_STEP_S)
         try:
             temperature, utilisation, q_abs = calculate_heat_flow(clients, settings, curve)

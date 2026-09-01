@@ -4,6 +4,7 @@ import pytest
 
 from conftest import ScriptedClient
 from functions import record_samples as module
+from functions.read_register import read_register
 
 
 def _settings(master_address=None):
@@ -14,9 +15,12 @@ def _settings(master_address=None):
         "MasterTemp": ["pb1", master_address]}}}, "HeaterPower": 193}
 
 
-def _run(samples, curve, tmp_path, master_address=None, user_input=None):
+def _run(samples, curve, tmp_path, master_address=None, user_input=None, should_continue=None):
     clients = {"pb1": ScriptedClient(samples, user_input=user_input)}
-    return module.record_samples(clients, _settings(master_address), curve, tmp_path / "results.csv")
+    settings = _settings(master_address)
+    keep_going = should_continue or (
+        lambda: read_register(clients, settings, "programmer", "UserInput") == 1)
+    return module.record_samples(clients, settings, curve, tmp_path / "results.csv", keep_going)
 
 
 def _rows(path):
@@ -79,3 +83,21 @@ def test_a_faulty_sample_is_skipped_not_fatal(clock, curve, tmp_path, capsys):
 def test_returns_nothing_if_the_trigger_clears_immediately(clock, curve, tmp_path):
     assert _run([(25.0, 25)], curve, tmp_path, user_input=lambda: 0) == []
     assert not (tmp_path / "results.csv").exists()
+
+
+def test_the_caller_owns_the_stop_condition(clock, curve, tmp_path):
+    """Force runs never read User Value 1; the interface decides when to stop instead."""
+    remaining = [3]
+
+    def keep_going():
+        remaining[0] -= 1
+        return remaining[0] > 0
+
+    client = ScriptedClient([(25.0, 25)] * 9)
+    module.record_samples({"pb1": client}, _settings(), curve, tmp_path / "results.csv", keep_going)
+    assert len(_rows(tmp_path / "results.csv")) == 2
+    assert not any(address == ScriptedClient.USER_INPUT for address, _, _ in client.reads)
+
+
+def test_a_predicate_false_from_the_start_records_nothing(clock, curve, tmp_path):
+    assert _run([(25.0, 25)] * 3, curve, tmp_path, should_continue=lambda: False) == []

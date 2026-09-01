@@ -1,3 +1,4 @@
+import tempfile
 import tkinter as tk
 from pathlib import Path
 from tkinter import ttk
@@ -9,13 +10,16 @@ from functions.launch_task import launch_task
 
 REPORT_PREFIX = "Report written to "
 DRAIN_MS = 120
+# both processes agree on this path because app.py passes it to the child
+SENTINEL = Path(tempfile.gettempdir()) / "pb-calorimeter-stop"
 
 root = tk.Tk()
 root.title("PB Calorimeter")
 root.geometry("880x660")
 ttk.Style().theme_use("vista")
 logo = tk.PhotoImage(file=Path(__file__).parent / "assets" / "CRD Logo.png").subsample(4)
-state = {"frame": None, "task": None, "screen": None, "widgets": None, "lines": [], "report": None}
+state = {"frame": None, "task": None, "screen": None, "widgets": None, "lines": [],
+         "report": None, "heading": "", "stop": None}
 
 
 def stop_task():
@@ -23,6 +27,7 @@ def stop_task():
     if state["task"] and state["task"][0].poll() is None:
         state["task"][0].terminate()
     state["task"] = None
+    SENTINEL.unlink(missing_ok=True)
 
 
 def show(frame):
@@ -41,7 +46,7 @@ def append(line):
 
 
 def show_progress(heading):
-    state["widgets"] = build_progress(root, heading, show_menu)
+    state["widgets"] = build_progress(root, heading, show_menu, state["stop"])
     state["screen"] = "progress"
     show(state["widgets"]["frame"])
     for line in state["lines"]:  # replayed, so returning from the results panel loses nothing
@@ -56,7 +61,13 @@ def show_results():
 
 
 def resume_testing():
-    show_progress("Testing mode")
+    show_progress(state["heading"])
+
+
+def request_stop():
+    """Ask a forced run to stop; it finishes the file and opens the selection window itself."""
+    SENTINEL.touch()
+    state["widgets"]["status"].configure(text="Stopping - the selection window will open shortly.")
 
 
 def drain():
@@ -76,9 +87,10 @@ def drain():
     root.after(DRAIN_MS, drain)
 
 
-def start(script, heading):
+def start(script, heading, arguments=(), on_stop=None):
     state["lines"], state["report"] = [], None
-    state["task"] = launch_task(script)
+    state["heading"], state["stop"] = heading, on_stop
+    state["task"] = launch_task(script, arguments)
     show_progress(heading)
     root.after(DRAIN_MS, drain)
 
@@ -86,9 +98,11 @@ def start(script, heading):
 def show_menu():
     stop_task()  # leaving testing mode stops the run; whatever it recorded is kept
     state["screen"], state["lines"], state["report"] = "menu", [], None
-    show(build_menu(root, logo, (lambda: start("main.py", "Testing mode"),
-                                 lambda: start("reanalyse.py", "Re-analysis"),
-                                 quit_app)))
+    show(build_menu(root, logo, (
+        lambda: start("main.py", "Testing mode"),
+        lambda: start("force_run.py", "Force run", [str(SENTINEL)], request_stop),
+        lambda: start("reanalyse.py", "Re-analysis"),
+        quit_app)))
 
 
 def quit_app():

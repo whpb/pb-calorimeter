@@ -1,15 +1,17 @@
-from functions.analyse_samples import analyse_samples
-from functions.keep_alive import keep_alive
 from functions.load_cooling_curve import load_cooling_curve
+from functions.read_register import read_register
 from functions.record_samples import record_samples
 
 
 def measure_calorimetry(clients, settings, save_path):
-    """Record a run, have the operator pick its baseline and experiment zones, then report."""
+    """Record a User Value 1 run to CSV and stop there, leaving the zones to be picked later."""
     curve = load_cooling_curve()
-    samples = record_samples(clients, settings, curve, save_path)
+    samples = record_samples(clients, settings, curve, save_path,
+                             lambda: read_register(clients, settings, "programmer", "UserInput") == 1)
     if not samples:
-        print("No samples recorded, nothing to analyse.")
+        print("No samples recorded.")
         return
-    # the rig drops idle sockets, so the selection window has to keep the connection warm
-    analyse_samples(samples, save_path, lambda: keep_alive(clients, settings))
+    # deliberately no zone selection: this mode runs unattended, and a blocking
+    # selection window would sit there until someone came back to the machine
+    print(f"Recorded {len(samples)} samples to {save_path.name}. "
+          "Re-analyse it at the machine to pick zones and produce a report.")

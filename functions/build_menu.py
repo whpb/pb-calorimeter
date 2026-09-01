@@ -2,7 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 
 BRAND = "#D71921"  # sampled from the logo, so the rule under the title matches it
-OPTIONS = (("Testing mode", "Wait for User Value 1, and record every run until you stop"),
+OPTIONS = (("Testing mode", "Unattended: record every User Value 1 run to CSV, ready to re-analyse"),
+           ("Force run", "Start and stop one run from here, ignoring User Value 1"),
            ("Re-analyse data", "Re-cut the zones on a results file you already have"),
            ("Quit", "Close the application"))
 

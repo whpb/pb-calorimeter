@@ -27,10 +27,30 @@ def test_the_log_accepts_lines(tk_root):
     assert "Loaded 720 samples" in widgets["log"].get("1.0", "end")
 
 
-def test_the_back_button_warns_that_it_stops_the_run(tk_root):
+def _buttons(widgets):
+    row = [w for w in widgets["frame"].winfo_children() if isinstance(w, ttk.Frame)][-1]
+    return [w for w in row.winfo_children() if isinstance(w, ttk.Button)]
+
+
+def test_the_back_button_says_it_ends_the_run(tk_root):
     pressed = []
     widgets = build_progress(tk_root, "Testing mode", lambda: pressed.append(1))
-    button = [w for w in widgets["frame"].winfo_children() if isinstance(w, ttk.Button)][0]
-    assert "stops the run" in button.cget("text")
+    button = _buttons(widgets)[0]
+    assert "ends the run" in button.cget("text")
     button.invoke()
+    assert pressed == [1]
+
+
+def test_only_a_forced_run_offers_a_graceful_stop(tk_root):
+    """Testing mode ends at the nanodac, so a Stop button there would be a lie."""
+    waiting = build_progress(tk_root, "Testing mode", lambda: None)
+    forced = build_progress(tk_root, "Force run", lambda: None, lambda: None)
+    assert [b.cget("text") for b in _buttons(waiting)] == ["Back to menu  (ends the run)"]
+    assert "Stop and analyse" in [b.cget("text") for b in _buttons(forced)]
+
+
+def test_the_stop_button_reports_the_press(tk_root):
+    pressed = []
+    widgets = build_progress(tk_root, "Force run", lambda: None, lambda: pressed.append(1))
+    _buttons(widgets)[0].invoke()
     assert pressed == [1]
