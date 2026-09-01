@@ -3,6 +3,7 @@ import csv
 import pytest
 
 from conftest import ScriptedClient
+from functions import analyse_samples as analysis
 from functions import measure_calorimetry as module
 
 SETTINGS = {"addresses": {"controllers": {"pb1": "x:502"}, "modbus": {"programmer": {
@@ -23,7 +24,7 @@ def rig(monkeypatch, curve, clock):
         last = samples[-1]["Elapsed (min)"]
         return chosen.get("windows", {"baseline": (0.0, last / 2), "experiment": (last / 2, last)})
 
-    monkeypatch.setattr(module, "select_windows", choose)
+    monkeypatch.setattr(analysis, "select_windows", choose)
     return chosen
 
 

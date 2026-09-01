@@ -39,6 +39,19 @@
 
 Started at: #run.finished
 
+Baseline zone parameters
+
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  [Samples], [#run.baseline.samples],
+  [Duration], [#run.baseline.duration_min min],
+  [Start], [#run.baseline.start_min min],
+  [σ], [#run.baseline.sd W]
+)
+
+Experiment parameters
+
 #table(
   columns: (auto, auto),
   stroke: none,
@@ -55,14 +68,3 @@ Started at: #run.finished
 // The steady-state curve only holds at equilibrium, so the energy integral above is
 // the robust number; the trace below shows how far each instant strayed.
 #image(run.plot, width: 100%)
-
-Baseline zone parameters
-
-#table(
-  columns: (auto, auto),
-  stroke: none,
-  [Samples], [#run.baseline.samples],
-  [Duration], [#run.baseline.duration_min min],
-  [Start], [#run.baseline.start_min min],
-  [σ], [#run.baseline.sd W]
-)

@@ -27,10 +27,10 @@ def test_plots_net_power_for_the_baseline_choice(panes):
     assert list(power.lines[0].get_ydata()) == [0.0, 1.0, 2.0, 3.0]
 
 
-def test_falls_back_to_the_plate_while_the_probe_is_unconfigured(panes):
+def test_falls_back_to_the_plate_when_there_is_no_probe_data(panes):
     _, _, probe = panes(SAMPLES)
     assert list(probe.lines[0].get_ydata()) == [25.0, 24.0, 23.0, 22.0]
-    assert "not configured" in probe.get_ylabel()
+    assert "no master probe data" in probe.get_ylabel()
 
 
 def test_plots_the_probe_once_it_reports(panes):

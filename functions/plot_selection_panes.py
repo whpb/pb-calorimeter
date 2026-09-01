@@ -7,9 +7,9 @@ def plot_selection_panes(samples):
     probe_values = [row["Master temperature (C)"] for row in samples]
     label = "Master probe (C)"
     if all(value is None for value in probe_values):
-        # the master probe address is still a placeholder, so fall back to something plottable
+        # no probe data: either the address is unset, or the file predates the column
         probe_values = [row["Plate temperature (C)"] for row in samples]
-        label = "Plate temperature (C) - master probe not configured"
+        label = "Plate temperature (C) - no master probe data"
     figure, (power, probe) = plt.subplots(2, 1, sharex=True, figsize=(11, 7))
     power.plot(elapsed, [row["Q_abs (W)"] for row in samples], color="C0", linewidth=1.0)
     power.set_ylabel("Q_abs (W)")
