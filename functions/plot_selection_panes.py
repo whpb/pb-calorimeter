@@ -13,7 +13,7 @@ def plot_selection_panes(samples):
     figure, (power, probe) = plt.subplots(2, 1, sharex=True, figsize=(11, 7))
     power.plot(elapsed, [row["Q_abs (W)"] for row in samples], color="C0", linewidth=1.0)
     power.set_ylabel("Q_abs (W)")
-    power.set_title("Drag the BASELINE zone here - unloaded plate, whole noise cycles")
+    power.set_title("Drag the BASELINE zone here")
     power.grid(alpha=0.3)
     probe.plot(elapsed, probe_values, color="C3", linewidth=1.0)
     probe.set_ylabel(label)

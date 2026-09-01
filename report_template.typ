@@ -55,7 +55,7 @@ Experiment parameters
 #table(
   columns: (auto, auto),
   stroke: none,
-  [Samples], [#run.samples],
+  [Samples], [#run.experiment.samples],
   [Duration], [#run.duration_min min],
   [Baseline $Q_"abs"$], [#run.baseline_w W],
   [Peak $Q_"relative"$], [#run.peak_w W],

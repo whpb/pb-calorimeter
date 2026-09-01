@@ -98,6 +98,16 @@ class Clock:
 
 
 @pytest.fixture
+def tk_root():
+    """A withdrawn Tk root: widgets can be built and inspected, but nothing is ever drawn."""
+    tkinter = pytest.importorskip("tkinter")
+    root = tkinter.Tk()
+    root.withdraw()
+    yield root
+    root.destroy()
+
+
+@pytest.fixture
 def clock(monkeypatch):
     """Run time-driven loops instantly, with every interval exactly as long as it claims."""
     fake = Clock()
