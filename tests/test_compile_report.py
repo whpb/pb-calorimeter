@@ -5,6 +5,8 @@ import pytest
 from functions import compile_report as module
 from functions.plot_work_curve import plot_work_curve
 
+ZONE = {"start_min": 0.0, "end_min": 2.5, "duration_min": 2.5, "samples": 3,
+        "mean": 1.2, "sd": 0.4, "spread": 1.1}
 SUMMARY = {
     "samples": 3,
     "duration_min": 2.5,
@@ -12,6 +14,8 @@ SUMMARY = {
     "peak_w": -30.0,
     "energy_j": 1234.5,
     "direction": "added to",
+    "baseline": ZONE,
+    "experiment": ZONE,
     "plot": "results.png",
     "finished": "2026-08-26T12:00:00",
 }
@@ -21,7 +25,9 @@ SUMMARY = {
 def run_folder(tmp_path):
     """A results folder holding the work-curve PNG the template expects to find."""
     save_path = tmp_path / "results.csv"
-    plot_work_curve([(0.0, 0.0, 0.0), (1.0, 19.3, -0.5)], save_path)
+    samples = [{"Elapsed (min)": 0.0, "Q_relative (W)": 0.0, "Plate temperature change (C)": 0.0},
+               {"Elapsed (min)": 1.0, "Q_relative (W)": 19.3, "Plate temperature change (C)": -0.5}]
+    plot_work_curve(samples, {"baseline": (0.0, 0.5), "experiment": (0.5, 1.0)}, save_path)
     return save_path
 
 

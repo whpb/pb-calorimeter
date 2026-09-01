@@ -2,26 +2,27 @@ from datetime import datetime
 
 from functions.compile_report import compile_report
 from functions.plot_work_curve import plot_work_curve
+from functions.summarise_window import summarise_window
 
 
-def generate_report(history, energy, baseline, save_path):
-    """Summarise a completed measurement to console and render it as a Typst PDF."""
-    if not history:
-        print("No samples recorded, skipping report.")
-        return
-    peak = max(history, key=lambda row: abs(row[1]))[1]
+def generate_report(samples, windows, baseline, energy, save_path):
+    """Summarise the selected zones to console and render them as a Typst PDF."""
+    experiment = summarise_window(samples, "Q_relative (W)", windows["experiment"])
+    inside = [row["Q_relative (W)"] for row in samples if row["Zone"] == "experiment"]
     summary = {
-        "samples": len(history),
-        "duration_min": round(history[-1][0] - history[0][0], 2),
-        "baseline_w": round(baseline, 2),
-        "peak_w": round(peak, 2),
+        "samples": len(samples),
+        "duration_min": round(samples[-1]["Elapsed (min)"] - samples[0]["Elapsed (min)"], 2),
+        "baseline_w": baseline["mean"],
+        "peak_w": round(max(inside, key=abs), 2),
         "energy_j": round(energy, 1),
         "direction": "added to" if energy >= 0 else "removed from",
-        "plot": plot_work_curve(history, save_path).name,
+        "baseline": baseline,
+        "experiment": experiment,
+        "plot": plot_work_curve(samples, windows, save_path).name,
         "finished": datetime.now().isoformat(timespec="seconds"),
     }
-    print(f"{summary['samples']} samples over {summary['duration_min']:.2f} min, "
-          f"baseline {summary['baseline_w']:.2f} W, peak {summary['peak_w']:.2f} W")
+    print(f"Baseline zone {baseline['start_min']:.2f}-{baseline['end_min']:.2f} min, "
+          f"experiment zone {experiment['start_min']:.2f}-{experiment['end_min']:.2f} min")
     print(f"Total energy: {energy:.1f} J "
           f"({abs(energy) / 1000:.3f} kJ {summary['direction']} the plate)")
     report = compile_report(summary, save_path)

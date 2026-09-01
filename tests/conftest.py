@@ -1,6 +1,10 @@
 import sys
 import time
 
+import matplotlib
+
+matplotlib.use("Agg")  # the suite must never open a window
+
 import pytest
 from pymodbus.client.mixin import ModbusClientMixin
 
@@ -48,9 +52,9 @@ class FakeClient:
 
 
 class ScriptedClient(FakeClient):
-    """Replays a list of (plate C, heater %) samples; None stages a MODBUS fault."""
+    """Replays (plate C, heater %[, master C]) samples; None stages a MODBUS fault."""
 
-    USER_INPUT, PLATE_TEMP, HEATER_UTIL = 14954, 33280, 43874
+    USER_INPUT, PLATE_TEMP, HEATER_UTIL, MASTER_TEMP = 14954, 33280, 43874, 40000
 
     def __init__(self, samples, user_input=None):
         super().__init__()
@@ -62,6 +66,8 @@ class ScriptedClient(FakeClient):
         self.reads.append((address, count, device_id))
         if address == self.USER_INPUT:
             return self._encode(self.user_input(), DATATYPE.INT16)
+        if address == self.MASTER_TEMP:
+            return self._sample(2, DATATYPE.FLOAT32)
         if address == self.PLATE_TEMP:
             self.current = self.samples[min(self.index, len(self.samples) - 1)]
             self.index += 1
@@ -119,6 +125,7 @@ def settings():
                     "UserInput": ["pb1", "14954"],
                     "PlateTemp": ["pb1", "33280"],
                     "HeaterUtil": ["pb1", "43874"],
+                    "MasterTemp": ["pb1", None],
                 }
             },
         },

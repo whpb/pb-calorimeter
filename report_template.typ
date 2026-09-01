@@ -8,12 +8,22 @@
 // Fields available on `run`:
 //   run.samples       int    samples recorded
 //   run.duration_min  float  minutes from the first sample to the last
-//   run.baseline_w    float  Q_abs at t=0; past +/-10 W the cooling curve wants recalibrating
+//   run.baseline_w    float  mean Q_abs over the selected baseline zone; past +/-10 W the
+//                            cooling curve wants recalibrating
 //   run.peak_w        float  largest excursion of Q_relative, sign preserved
 //   run.energy_j      float  total energy change - the headline figure
 //   run.direction      str   "added to" or "removed from"
 //   run.plot           str   filename of the work-curve PNG
 //   run.finished       str   ISO timestamp the report was generated
+//
+// The operator picks both zones by hand once the run ends. Each is described by a
+// dictionary, run.baseline and run.experiment, with the same fields:
+//   .start_min .end_min .duration_min   float  extent of the zone
+//   .samples                            int    readings inside it
+//   .mean .sd .spread                   float  of Q_abs in the baseline zone,
+//                                              of Q_relative in the experiment zone
+// A wide baseline .sd or .spread means the zone missed whole cycles of the 90-120 s
+// power swing, so run.baseline_w (which is run.baseline.mean) is off-centre.
 
 #let run = json(sys.inputs.data)
 
@@ -27,8 +37,6 @@
 = Calorimetry report
 
 Started at: #run.finished
-
-// PLACEHOLDER LAYOUT - replace everything below with your own.
 
 #table(
   columns: (auto, auto),
@@ -46,3 +54,14 @@ Started at: #run.finished
 // The steady-state curve only holds at equilibrium, so the energy integral above is
 // the robust number; the trace below shows how far each instant strayed.
 #image(run.plot, width: 100%)
+
+Baseline zone parameters
+
+#table(
+  columns: (auto, auto),
+  stroke: none,
+  [Samples], [#run.baseline.samples],
+  [Duration], [#run.baseline.duration_min min],
+  [Start], [#run.baseline.start_min min],
+  [σ], [#run.baseline.sd W]
+)

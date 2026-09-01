@@ -18,19 +18,19 @@ Available functions:
 
 The calorimetric measurement function comprises three steps:
 
-1. Start: take baseline work reading, initiate loop
-2. Loop: calculate instantaneous work and rolling energy total based on heater utilisation and plate temperature; these equations reference the data in pb_cooling_capacity.csv
-3. End: close results file and produce report detailing work curve (relative to baseline) and total energy added or removed
+1. Start: initiate loop
+2. Loop: record plate temp, master temp, and heater utilisation
+3. End: prompt user to select baseline and experiment zones, close results file, and produce report detailing work curve (relative to baseline) and total energy added or removed
 
 This function applies the principle of conservation of energy to estimate the energy change caused by a source or sink placed on the plate.
 
 Before starting, the Polar Bear is instructed to hold a control temperature. This provides a stable baseline from which deviations can be measured.
 
-The function is started, and begins performing the following calculation every time step:
+The function is started, and begins recording. After the experiment, heat transfer is calculated using the following equation:
 
     Q_relative = Q_abs - Q_baseline
 
-Where Q_abs is interpolated from the Polar Bear's characteristic cooling power-temperature curve, and Q_baseline is the initial value of Q_abs, averaged over 10 minutes. All Q values are measured in Watts.
+Where Q_abs is interpolated from the Polar Bear's characteristic cooling power-temperature curve, and Q_baseline is the value of Q_abs averaged over a zone specified by the user. All Q values are measured in Watts.
 
 The rolling total energy is also calculated:
 
@@ -44,6 +44,7 @@ When the function ends, the results file is closed, a final energy is calculated
 
 - Q_relative - time plot
 - Total energy change
+- Baseline zone statistics
 
 ### Settings
 To change the program settings, open the file `settings.json` in a text editor.

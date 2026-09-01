@@ -7,7 +7,8 @@
             "programmer": {
                 "UserInput": ["pb1", "14954"],
                 "PlateTemp": ["pb1", "33280"],
-                "HeaterUtil": ["pb1", "43874"]
+                "HeaterUtil": ["pb1", "43874"],
+                "MasterTemp": ["pb1", "33296"]
             }
         }
     },
