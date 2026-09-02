@@ -17,11 +17,13 @@ if len(sys.argv) < 2:
     sys.exit("force_run.py needs the path of the stop file the interface will create")
 sentinel = Path(sys.argv[1])
 sentinel.unlink(missing_ok=True)  # a stale stop must not end this run before it starts
+name = sys.argv[2] if len(sys.argv) > 2 else ""  # blank falls back to the FileName pattern
 
 print("Loading settings...")
 settings = load_settings()
-save_path = resolve_save_path(settings)
-log_file = start_console_log(save_path)
+save_path = resolve_save_path(settings, name)
+print(f"Recording to {save_path.parent}")
+log_file = start_console_log(save_path.parent)
 
 print("Connecting to controllers...")
 clients = connect_controllers(settings)

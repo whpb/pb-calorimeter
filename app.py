@@ -9,6 +9,7 @@ load_fonts()  # before Tk exists: Tcl enumerates the font families once, at star
 from functions import tokens as t
 from functions.apply_theme import apply_theme
 from functions.build_menu import build_menu
+from functions.build_name import build_name
 from functions.build_progress import build_progress
 from functions.build_results import build_results
 from functions.launch_task import launch_task
@@ -107,12 +108,24 @@ def start(script, heading, arguments=(), on_stop=None):
     root.after(DRAIN_MS, drain)
 
 
+def show_name():
+    """A forced run is named before it starts, so its folder says what it holds."""
+    state["screen"] = "name"
+    show(build_name(root, backdrop, start_experiment, show_menu))
+
+
+def start_experiment(name):
+    # the name reaches force_run.py as argv[2] and becomes the run folder; blank is allowed
+    start("force_run.py", name.strip() or "Run an Experiment", [str(SENTINEL), name],
+          request_stop)
+
+
 def show_menu():
     stop_task()  # leaving testing mode stops the run; whatever it recorded is kept
     state["screen"], state["lines"], state["report"] = "menu", [], None
     show(build_menu(root, backdrop, (
         lambda: start("main.py", "Testing mode"),
-        lambda: start("force_run.py", "Force run", [str(SENTINEL)], request_stop),
+        show_name,
         lambda: start("reanalyse.py", "Re-analysis"),
         quit_app)))
 

@@ -18,9 +18,13 @@ class _Tee:
             stream.flush()
 
 
-def start_console_log(save_path):
-    """Mirror all console output to a timestamped log file under logs/ next to save_path."""
-    logs_dir = Path(save_path).parent / "logs"
+def start_console_log(folder):
+    """Mirror all console output to a timestamped log file under logs/ inside folder.
+
+    A folder rather than a file: a run's log belongs in the run's own folder, while a
+    testing session spans many runs and keeps one log in the results root.
+    """
+    logs_dir = Path(folder) / "logs"
     logs_dir.mkdir(parents=True, exist_ok=True)
     log_path = logs_dir / f"{datetime.now():%Y-%m-%dT%H-%M-%S}.log"
     # line buffered: an abrupt window close must not take the session's log with it

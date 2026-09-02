@@ -23,8 +23,10 @@ SUMMARY = {
 
 @pytest.fixture
 def run_folder(tmp_path):
-    """A results folder holding the work-curve PNG the template expects to find."""
-    save_path = tmp_path / "results.csv"
+    """A run's own folder, inside the results root, holding the work-curve PNG."""
+    folder = tmp_path / "Copper block"
+    folder.mkdir()
+    save_path = folder / "results.csv"
     samples = [{"Elapsed (min)": 0.0, "Q_relative (W)": 0.0, "Plate temperature change (C)": 0.0,
                 "Master temperature change (C)": 0.0},
                {"Elapsed (min)": 1.0, "Q_relative (W)": 19.3, "Plate temperature change (C)": -0.5,
@@ -72,11 +74,17 @@ def test_ships_the_repo_assets_with_the_report(run_folder):
     """The template can only read files under the Typst root, so assets/ has to travel."""
     module.compile_report(SUMMARY, run_folder)
     repo_assets = module.Path(__file__).resolve().parent.parent / module.ASSETS
-    copied = run_folder.parent / module.ASSETS
+    copied = run_folder.parent.parent / module.ASSETS
     assert {path.name for path in copied.iterdir()} == {path.name for path in repo_assets.iterdir()}
 
 
+def test_the_assets_are_shared_by_every_run_not_copied_into_each(run_folder):
+    """4.6 MB of images and fonts; one copy at the root serves every run folder under it."""
+    module.compile_report(SUMMARY, run_folder)
+    assert not (run_folder.parent / module.ASSETS).exists()
+
+
 def test_the_template_reads_its_data_by_relative_name(run_folder):
-    """root is the results folder, so sys.inputs.data is a bare filename, not a path."""
+    """The JSON sits beside the .typ in the run folder, so it is named without a path."""
     module.compile_report(SUMMARY, run_folder)
     assert "sys.inputs.data" in run_folder.with_suffix(".typ").read_text()

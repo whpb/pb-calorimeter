@@ -1,7 +1,7 @@
 from pathlib import Path
 from tkinter import Tk, filedialog
 
-from functions.resolve_save_path import resolve_save_path
+from functions.resolve_results_root import resolve_results_root
 
 
 def choose_results_file(arguments, settings):
@@ -10,9 +10,9 @@ def choose_results_file(arguments, settings):
         return Path(arguments[0])
     root = Tk()
     root.withdraw()  # the dialog is the whole UI; no empty window behind it
-    # only the folder matters, so the filename resolve_save_path invents is discarded
+    # the root, not resolve_save_path: asking for a file must not create a run folder
     chosen = filedialog.askopenfilename(title="Choose a results CSV to re-analyse",
-                                        initialdir=resolve_save_path(settings).parent,
+                                        initialdir=resolve_results_root(settings),
                                         filetypes=[("Results CSV", "*.csv")])
     root.destroy()
     return Path(chosen) if chosen else None

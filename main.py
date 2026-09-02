@@ -6,6 +6,7 @@ from functions.connect_controllers import connect_controllers
 from functions.close_controllers import close_controllers
 from functions.keep_alive import keep_alive
 from functions.read_register import read_register
+from functions.resolve_results_root import resolve_results_root
 from functions.resolve_save_path import resolve_save_path
 from functions.start_console_log import start_console_log
 from functions.stop_console_log import stop_console_log
@@ -16,8 +17,9 @@ FUNCTIONS = {1: measure_calorimetry}
 print("Loading settings...")
 settings = load_settings()
 
-# only the folder is used here; each run resolves its own results file below
-log_file = start_console_log(resolve_save_path(settings))
+# one log for the whole session, in the results root: a session holds many runs,
+# and each of those gets its own folder below
+log_file = start_console_log(resolve_results_root(settings))
 
 print("Connecting to controllers...")
 clients = connect_controllers(settings)

@@ -1,9 +1,11 @@
 // Placeholder report template for a Polar Bear calorimetry run.
 //
-// functions/compile_report.py copies this file, the summary JSON, the work-curve PNG
-// and the repo's assets/ folder side by side into the run's results folder, and compiles
-// them there. Every path below is therefore relative to that folder, and anything this
-// template loads from disk must live in assets/. Edit THIS file, not the per-run copy.
+// functions/compile_report.py copies this file, the summary JSON and the work-curve PNG
+// side by side into the run's own folder, and the repo's assets/ folder once into the
+// results root above it, which is the Typst root. A bare path below is therefore relative
+// to the run's folder, and a path starting "/" is relative to the results root - which is
+// where anything this template loads from disk must live, under /assets/. Edit THIS file,
+// not the per-run copy.
 //
 // Fields available on `run`:
 //   run.samples       int    samples recorded
@@ -30,7 +32,7 @@
 #set page(
   paper: "a4", 
   margin: 2cm,
-  background: align(top, align(right, (box(image("assets/CRD Logo.png", width: 2cm), inset: 2cm))))
+  background: align(top, align(right, (box(image("/assets/CRD Logo.png", width: 2cm), inset: 2cm))))
   )
 #set par(justify: false)
 #set table(inset: (left: 0pt, rest: 5pt))
@@ -56,7 +58,7 @@ Experiment parameters
   columns: (auto, auto),
   stroke: none,
   [Samples], [#run.experiment.samples],
-  [Duration], [#run.duration_min min],
+  [Duration], [#run.experiment.duration_min min],
   [Baseline $Q_"abs"$], [#run.baseline_w W],
   [Peak $Q_"relative"$], [#run.peak_w W],
 )

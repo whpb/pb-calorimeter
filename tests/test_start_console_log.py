@@ -17,7 +17,7 @@ def session(tmp_path):
     started = []
 
     def start():
-        started.append(start_console_log(tmp_path / "results.csv"))
+        started.append(start_console_log(tmp_path))
         return started[-1], tmp_path / "logs"
 
     original = sys.stdout, sys.stderr
@@ -29,7 +29,7 @@ def session(tmp_path):
         sys.stdout, sys.stderr = original
 
 
-def test_creates_a_timestamped_log_beside_the_results(session):
+def test_creates_a_timestamped_log_inside_the_folder(session):
     _, logs_dir = session()
     assert [path.suffix for path in logs_dir.iterdir()] == [".log"]
 
@@ -82,7 +82,7 @@ sys.path.insert(0, {str(REPO)!r})
 from functions.start_console_log import start_console_log
 
 here = pathlib.Path({str(tmp_path)!r})
-start_console_log(here / "results.csv")
+start_console_log(here)
 print("MARKER")
 (here / "printed").write_text("y")   # a separately closed file, so it cannot vouch for itself
 time.sleep(60)

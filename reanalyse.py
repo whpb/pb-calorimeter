@@ -16,10 +16,11 @@ if source is None:
     print("No file chosen, nothing to do.")
     sys.exit()
 
-# a new file every time: the original run's results and report are never overwritten
+# a new file every time, inside the run's own folder: the original run's results and
+# report are never overwritten, and everything from that experiment stays together
 folder = source.parent
 target = folder / f"{next_sequential_name(folder, f'{source.stem} reanalysis')}.csv"
-log_file = start_console_log(target)
+log_file = start_console_log(folder)
 
 print(f"Re-analysing {source.name} into {target.name}")
 samples = load_samples(source)
