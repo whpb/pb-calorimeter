@@ -9,18 +9,25 @@ Make sure to run the polling script before beginning. To start, double click *Ap
 
 This opens a menu with the following options:
 
-| Option          | Use it when                                                                                                                                             |
-| ---             | ---                                                                                                                                                     |
-| Testing mode    | The rig is to run unattended. Waits for User Value 1 and records each run to its own results file. No report is produced; re-analyse the file afterwards. |
-| Force run       | You are at the machine. Recording starts straight away and stops when you press *Stop and analyse*, which then asks you to select the zones and produces a report. |
-| Re-analyse data | You want a report from a results file you already have, or want to re-cut the zones on one.                                                              |
-| Quit            | Close the program.                                                                                                                                       |
+| Option             | Use it when                                                                                                                                             |
+| ---                | ---                                                                                                                                                     |
+| Automated Sequence | The rig is to run unattended. Waits for User Value 1 and records each run to its own folder. No report is produced; re-analyse the file afterwards.      |
+| Run an Experiment  | You are at the machine. Asks what the experiment is called, then records straight away until you press *Stop and analyse*, which asks you to select the zones and produces a report. |
+| Analyse Data       | You want a report from a results file you already have, or want to re-cut the zones on one.                                                             |
+| Quit               | Close the program.                                                                                                                                      |
 
 While a run or a re-analysis is in progress, the screen shows its output as it happens. *Back to menu* ends it; anything already recorded is kept. Only one option can run at a time.
 
 When a report is produced, a panel appears with links to each of the files it generated.
 
 *Run.bat* and *Reanalyse.bat* start testing mode and re-analysis directly, without the menu.
+
+### Naming an experiment
+*Run an Experiment* asks what the experiment is called before it starts recording. The name becomes the folder that every file from that run is saved in, and the name of each of those files.
+
+Characters Windows will not accept in a folder name are replaced with spaces, and starting a second run under a name already used adds a number to it rather than writing over the first. Leave the box blank to name the run after the date and time instead.
+
+Testing mode is not named, since nobody is at the machine to name it; a re-analysis is not named either, because it belongs to the run it re-analyses and is saved in that run's folder.
 
 ### Running a cycle
 With testing mode active, change User Value 1 on the nanodac to the corresponding number. The polling function is latched, so the function will run only once then wait until the value is reset to 0.
@@ -31,9 +38,9 @@ Available functions:
 | 1      | Calorimetric measurement |
 | 2      | Stop the program         |
 
-Recording continues for as long as User Value 1 is held at 1, and ends when it changes. Set it back to 1 to record another run; each run is written to its own file.
+Recording continues for as long as User Value 1 is held at 1, and ends when it changes. Set it back to 1 to record another run; each run is written to its own folder.
 
-Force run does not use User Value 1 at all. It never writes to the controller.
+*Run an Experiment* does not use User Value 1 at all. It never writes to the controller.
 
 #### Calorimetric measurement
 
@@ -43,8 +50,8 @@ Before starting, the Polar Bear is instructed to hold a control temperature. Thi
 
 The measurement comprises three steps:
 
-1. Start: initiate loop
-2. Loop: record plate temp, master temp, and heater utilisation
+1. Start: initiate loop.
+2. Loop: record plate temp, master temp, and heater utilisation.
 3. End: close results file. In force run and re-analysis, select the zones and produce a report; in testing mode, stop here.
 
 Every time step, the instantaneous heat flow is calculated and written to a timestamped row in the results file:
@@ -106,15 +113,29 @@ Hardware addresses are stored in the following structure:
 "MasterTemp" is the sample probe. Its address may be set to `null` if no probe is fitted; the column is then left blank and plate temperature is used in its place when selecting the experiment zone.
 
 #### File handling
-By default, files are saved in the format `Documents/PBCal/YYYY-MM-DDThh-mm-ss.csv` (based loosely on ISO 8601).
+Every run is saved in its own folder inside the results directory, which is `Documents/PBCal` by default. The folder takes the name of the experiment, or, where none was given, the date and time in the format `YYYY-MM-DDThh-mm-ss` (based loosely on ISO 8601).
 
-Each run writes its own results file. A report adds files of the same name alongside it: the work curve (`.png`), the report itself (`.pdf`), and the data and template it was built from (`.json` and `.typ`). Re-analysing a file writes a new set named `<original name> reanalysis 1`, leaving the original untouched.
+The results file takes the name of its folder, and a report adds files of that name beside it: the work curve (`.png`), the report itself (`.pdf`), and the data and template it was built from (`.json` and `.typ`). Re-analysing a file writes a new set named `<original name> reanalysis 1` into the same folder, leaving the original untouched.
 
-Console output for each session is also saved, under `logs`.
+    Documents/PBCal
+    ├── Copper block
+    │   ├── Copper block.csv
+    │   ├── Copper block.pdf
+    │   ├── Copper block.png
+    │   ├── Copper block.json
+    │   ├── Copper block.typ
+    │   └── logs
+    ├── Copper block 1        <- a second run of the same name
+    ├── 2026-09-02T15-20-35   <- a run with no name given
+    └── assets
+
+Console output is also saved, under `logs`. An experiment and a re-analysis each keep their log inside the run's own folder; testing mode keeps one log for the whole session, in `logs` at the top of the results directory.
+
+`assets` holds the artwork the reports are built from. One copy is shared by every run, and it is refreshed each time a report is produced.
 
 The available settings are listed below.
 
 | Setting | Code | Notes |
 | ---     | ---  | ---   |
-| Save file location | `{"SavePath": "C:\path\to\folder\"}` | Paste file path from Windows console to avoid formatting errors |
-| Save file name convention | `{"FileName": "results"}` | A date or time value can be specified according to [strftime rules](https://docs.python.org/3/library/datetime.html#format-codes); if a plaintext filename is used, files will be named sequentially rather than timestamped (i.e. NewFile 1, NewFile 2, etc.)
+| Save file location | `{"SavePath": "C:\path\to\folder\"}` | Paste file path from Windows console to avoid formatting errors. |
+| Save file name convention | `{"FileName": "results"}` | Used to name a run that has no experiment name. A date or time value can be specified according to [strftime rules](https://docs.python.org/3/library/datetime.html#format-codes); if a plaintext filename is used, folders will be named sequentially rather than timestamped (i.e. NewFile 1, NewFile 2, etc.).

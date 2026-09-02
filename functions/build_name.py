@@ -6,7 +6,7 @@ from functions.build_screen import build_screen
 from functions.build_shelf import build_shelf
 from functions.grid_span import grid_span
 
-PANEL = (t.MARGIN, 104, grid_span(8), 200)
+PANEL = (t.MARGIN, 104, grid_span(8), 160)  # hugs the field; the shelf carries the rest
 LABEL = "Experiment name"
 HINT = "Names this run's folder and every file in it. Leave it blank to use the date and time."
 

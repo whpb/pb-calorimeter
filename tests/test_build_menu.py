@@ -30,7 +30,8 @@ def test_every_action_is_explained(tk_root, backdrop):
 
 def test_the_masthead_names_the_application(tk_root, backdrop):
     """The title is drawn on the canvas, not in a label, so that it can sit on the photograph."""
-    assert "PB Calorimeter" in canvas_text(build_menu(tk_root, backdrop, (lambda: None,) * 4))
+    assert "Polar Bear Calorimeter" in canvas_text(
+        build_menu(tk_root, backdrop, (lambda: None,) * 4))
 
 
 def test_survives_missing_artwork(tk_root, backdrop, monkeypatch, tmp_path):
