@@ -1,23 +1,37 @@
 import tkinter as tk
 from tkinter import ttk
 
+from functions import tokens as t
+from functions.build_button import build_button
+from functions.build_card import build_card
+from functions.build_screen import build_screen
+from functions.build_shelf import build_shelf
+from functions.grid_span import grid_span
 
-def build_progress(parent, heading, on_back, on_stop=None):
-    """Holding screen: an animated bar, the latest status line, and the run's output as it lands."""
-    frame = ttk.Frame(parent, padding=28)
-    ttk.Label(frame, text=heading, font=("Segoe UI", 20, "bold")).pack(anchor="w")
-    status = ttk.Label(frame, text="Starting...", foreground="#555555")
-    status.pack(anchor="w", pady=(6, 14))
-    bar = ttk.Progressbar(frame, mode="indeterminate")
-    bar.pack(fill="x")
+PANEL = (t.MARGIN, 104, grid_span(12), 396)
+
+
+def build_progress(parent, backdrop, heading, on_back, on_stop=None):
+    """Holding screen: the latest status line, a live bar, and the run's output as it lands."""
+    canvas = build_screen(parent, backdrop, heading)
+    inner = build_card(canvas, backdrop, PANEL)
+    status = tk.Label(inner, text="Starting...", font=t.H2, foreground=t.BODY,
+                      background=t.WHITE, anchor="w")
+    status.pack(fill="x")
+    bar = ttk.Progressbar(inner, mode="indeterminate", style="Brand.Horizontal.TProgressbar")
+    bar.pack(fill="x", pady=(t.SPACE[2], t.SPACE[4]))
     bar.start(12)  # the animation says the interface is alive; the log says the rig is
-    log = tk.Text(frame, height=16, wrap="none", borderwidth=0, font=("Consolas", 9),
-                  background="#1E1E1E", foreground="#D4D4D4", insertbackground="#D4D4D4")
-    log.pack(fill="both", expand=True, pady=(18, 18))
-    buttons = ttk.Frame(frame)
-    buttons.pack(anchor="w")
+    well = tk.Frame(inner, background=t.CANVAS, highlightthickness=1,
+                    highlightbackground=t.LINE)
+    well.pack(fill="both", expand=True)
+    log = tk.Text(well, wrap="none", borderwidth=0, highlightthickness=0, font=t.LOG,
+                  background=t.CANVAS, foreground=t.BODY, insertbackground=t.BODY,
+                  padx=t.SPACE[3], pady=t.SPACE[2])
+    log.pack(fill="both", expand=True)
+    shelf = build_shelf(canvas, backdrop)
+    build_button(shelf, "Back to menu  (ends the run)", on_back, "quiet",
+                 (232, 52)).pack(side="right")
     if on_stop is not None:  # only a forced run can be ended from here with its report intact
-        ttk.Button(buttons, text="Stop and analyse", command=on_stop).pack(side="left", padx=(0, 8))
-    ttk.Button(buttons, text="Back to menu  (ends the run)",
-               command=on_back).pack(side="left")
-    return {"frame": frame, "status": status, "log": log}
+        build_button(shelf, "Stop and analyse", on_stop, size=(180, 52)).pack(
+            side="right", padx=(0, t.SPACE[2]))
+    return {"frame": canvas, "status": status, "log": log}

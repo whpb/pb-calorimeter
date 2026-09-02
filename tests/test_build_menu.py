@@ -1,35 +1,39 @@
-from tkinter import ttk
+from conftest import canvas_text, drawn, find, text_of
 
-from functions.build_menu import build_menu, OPTIONS
-
-
-def _buttons(frame):
-    return [w for w in frame.winfo_children() if isinstance(w, ttk.Button)]
+from functions.build_menu import OPTIONS, build_menu
 
 
-def test_offers_exactly_the_three_operator_actions(tk_root):
-    frame = build_menu(tk_root, None, (lambda: None,) * 4)
-    assert [b.cget("text") for b in _buttons(frame)] == ["Testing mode", "Force run",
-                                                         "Re-analyse data", "Quit"]
+def test_offers_exactly_the_three_operator_actions(tk_root, backdrop):
+    """Quit is the fourth command, but it lives on the shelf rather than in a card."""
+    canvas = build_menu(tk_root, backdrop, (lambda: None,) * 4)
+    for _, title, _, _ in OPTIONS:
+        assert title in text_of(canvas)
+    assert len(drawn(canvas)) == len(OPTIONS) + 1
 
 
-def test_each_button_runs_its_own_command(tk_root):
+def test_each_button_runs_its_own_command(tk_root, backdrop):
     pressed = []
-    commands = tuple(lambda name=name: pressed.append(name)
-                     for name, _ in OPTIONS)
-    frame = build_menu(tk_root, None, commands)
-    for button in _buttons(frame):
-        button.invoke()
-    assert pressed == ["Testing mode", "Force run", "Re-analyse data", "Quit"]
+    commands = [*(lambda name=title: pressed.append(name) for _, title, _, _ in OPTIONS),
+                lambda: pressed.append("Quit")]
+    canvas = build_menu(tk_root, backdrop, commands)
+    for _, title, _, action in OPTIONS:
+        find(canvas, action).invoke()
+    find(canvas, "Quit").invoke()
+    assert pressed == [title for _, title, _, _ in OPTIONS] + ["Quit"]
 
 
-def test_every_action_is_explained(tk_root):
-    frame = build_menu(tk_root, None, (lambda: None,) * 4)
-    labels = [w.cget("text") for w in frame.winfo_children() if isinstance(w, ttk.Label)]
-    for _, description in OPTIONS:
-        assert description in labels
+def test_every_action_is_explained(tk_root, backdrop):
+    canvas = build_menu(tk_root, backdrop, (lambda: None,) * 4)
+    for _, _, description, _ in OPTIONS:
+        assert description in text_of(canvas)
 
 
-def test_survives_a_missing_logo(tk_root):
-    """Branding is decoration; the menu must still work if the asset is gone."""
-    assert build_menu(tk_root, None, (lambda: None,) * 4).winfo_children()
+def test_the_masthead_names_the_application(tk_root, backdrop):
+    """The title is drawn on the canvas, not in a label, so that it can sit on the photograph."""
+    assert "PB Calorimeter" in canvas_text(build_menu(tk_root, backdrop, (lambda: None,) * 4))
+
+
+def test_survives_missing_artwork(tk_root, backdrop, monkeypatch, tmp_path):
+    """Branding is decoration; the menu must still work if the assets are gone."""
+    monkeypatch.setattr("functions.build_hero.ASSETS", tmp_path)
+    assert len(drawn(build_menu(tk_root, backdrop, (lambda: None,) * 4))) == len(OPTIONS) + 1

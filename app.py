@@ -1,12 +1,19 @@
 import tempfile
 import tkinter as tk
 from pathlib import Path
-from tkinter import ttk
 
+from functions.load_fonts import load_fonts
+
+load_fonts()  # before Tk exists: Tcl enumerates the font families once, at start-up
+
+from functions import tokens as t
+from functions.apply_theme import apply_theme
 from functions.build_menu import build_menu
 from functions.build_progress import build_progress
 from functions.build_results import build_results
 from functions.launch_task import launch_task
+from functions.window_backdrop import window_backdrop
+from functions.window_icon import window_icon
 
 REPORT_PREFIX = "Report written to "
 DRAIN_MS = 120
@@ -15,9 +22,14 @@ SENTINEL = Path(tempfile.gettempdir()) / "pb-calorimeter-stop"
 
 root = tk.Tk()
 root.title("PB Calorimeter")
-root.geometry("880x660")
-ttk.Style().theme_use("vista")
-logo = tk.PhotoImage(file=Path(__file__).parent / "assets" / "CRD Logo.png").subsample(4)
+root.geometry(f"{t.WIDTH}x{t.HEIGHT}")
+root.resizable(False, False)  # every screen is laid out on the grid at exactly this size
+apply_theme(root)
+backdrop = window_backdrop(Path(__file__).parent / "assets" / "background.png",
+                           (t.WIDTH, t.HEIGHT))
+icon = window_icon(root)
+if icon is not None:
+    root.iconphoto(True, icon)
 state = {"frame": None, "task": None, "screen": None, "widgets": None, "lines": [],
          "report": None, "heading": "", "stop": None}
 
@@ -46,7 +58,7 @@ def append(line):
 
 
 def show_progress(heading):
-    state["widgets"] = build_progress(root, heading, show_menu, state["stop"])
+    state["widgets"] = build_progress(root, backdrop, heading, show_menu, state["stop"])
     state["screen"] = "progress"
     show(state["widgets"]["frame"])
     for line in state["lines"]:  # replayed, so returning from the results panel loses nothing
@@ -56,7 +68,7 @@ def show_progress(heading):
 def show_results():
     state["screen"] = "results"
     running = state["task"] and state["task"][0].poll() is None
-    show(build_results(root, state["report"], show_menu,
+    show(build_results(root, backdrop, state["report"], show_menu,
                        resume_testing if running else None))
 
 
@@ -98,7 +110,7 @@ def start(script, heading, arguments=(), on_stop=None):
 def show_menu():
     stop_task()  # leaving testing mode stops the run; whatever it recorded is kept
     state["screen"], state["lines"], state["report"] = "menu", [], None
-    show(build_menu(root, logo, (
+    show(build_menu(root, backdrop, (
         lambda: start("main.py", "Testing mode"),
         lambda: start("force_run.py", "Force run", [str(SENTINEL)], request_stop),
         lambda: start("reanalyse.py", "Re-analysis"),

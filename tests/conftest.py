@@ -108,6 +108,61 @@ def tk_root():
 
 
 @pytest.fixture
+def backdrop():
+    """A flat stand-in for the window's photograph: the builders only ever crop from it."""
+    Image = pytest.importorskip("PIL.Image")
+    from functions import tokens
+
+    return Image.new("RGB", (tokens.WIDTH, tokens.HEIGHT), tokens.CANVAS)
+
+
+def descendants(widget):
+    """Every widget under this one. The screens nest content inside drawn cards."""
+    for child in widget.winfo_children():
+        yield child
+        yield from descendants(child)
+
+
+def drawn(widget):
+    """The drawn buttons and rows under a widget, in layout order, by their .invoke handle."""
+    return [w for w in descendants(widget) if hasattr(w, "invoke")]
+
+
+def text_of(widget):
+    """Every piece of text under a widget, wherever in the nesting it sits."""
+    return [w.cget("text") for w in descendants(widget) if "text" in w.keys()]
+
+
+def find(widget, needle):
+    """The one drawn button or row whose own text, or a label inside it, contains `needle`."""
+    matches = [w for w in drawn(widget)
+               if any(needle in text for text in [*text_of(w),
+                                                  *([w.cget("text")] if "text" in w.keys() else [])])]
+    assert len(matches) == 1, f"{needle!r} matched {len(matches)} controls"
+    return matches[0]
+
+
+def packed_height(frame):
+    """How tall the children packed into a frame actually come to, padding included.
+
+    The panels are a fixed size, so anything over the frame's own height is clipped away
+    rather than scrolled - which is a layout bug, and one only arithmetic will catch.
+    """
+    total = 0
+    for child in frame.winfo_children():
+        pady = child.pack_info()["pady"]
+        total += child.winfo_reqheight() + (sum(int(v) for v in pady)
+                                            if isinstance(pady, tuple) else 2 * int(pady))
+    return total
+
+
+def canvas_text(canvas):
+    """The text of every item drawn straight onto a canvas, which is where headings live."""
+    return [canvas.itemcget(item, "text") for item in canvas.find_all()
+            if canvas.type(item) == "text"]
+
+
+@pytest.fixture
 def clock(monkeypatch):
     """Run time-driven loops instantly, with every interval exactly as long as it claims."""
     fake = Clock()
