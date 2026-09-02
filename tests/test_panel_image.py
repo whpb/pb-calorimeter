@@ -1,6 +1,6 @@
 from PIL import Image
 
-from functions.panel_image import PAD, panel_image
+from functions.panel_image import PAD, SHADOW_BLUR, SHADOW_DROP, panel_image
 
 
 def test_leaves_the_blur_room_on_every_edge():
@@ -32,3 +32,14 @@ def test_the_shadow_darkens_below_the_panel():
     below = panel.getpixel((PAD + 50, PAD + 40 + 6))
     above = panel.getpixel((PAD + 50, PAD - 6))
     assert sum(below) < sum(above) < 765
+
+
+def test_the_shadow_is_not_cropped_by_the_padding():
+    """PAD has to cover the blur's reach plus its drop, or the panel gets a hard bottom line."""
+    assert PAD >= SHADOW_BLUR * 2 + SHADOW_DROP
+
+
+def test_a_tighter_pad_still_holds_the_whole_shadow():
+    """The buttons pass their own smaller pad; the edge row must be clear of the blur."""
+    panel = panel_image((80, 30), 15, "#135892", blur=3, pad=3 * 2 + SHADOW_DROP)
+    assert panel.getpixel((0, panel.height - 1))[3] == 0

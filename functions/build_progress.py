@@ -14,7 +14,7 @@ PANEL = (t.MARGIN, 104, grid_span(12), 396)
 def build_progress(parent, backdrop, heading, on_back, on_stop=None):
     """Holding screen: the latest status line, a live bar, and the run's output as it lands."""
     canvas = build_screen(parent, backdrop, heading)
-    inner = build_card(canvas, backdrop, PANEL)
+    inner = build_card(canvas, PANEL)
     status = tk.Label(inner, text="Starting...", font=t.H2, foreground=t.BODY,
                       background=t.WHITE, anchor="w")
     status.pack(fill="x")
@@ -28,10 +28,10 @@ def build_progress(parent, backdrop, heading, on_back, on_stop=None):
                   background=t.CANVAS, foreground=t.BODY, insertbackground=t.BODY,
                   padx=t.SPACE[3], pady=t.SPACE[2])
     log.pack(fill="both", expand=True)
-    shelf = build_shelf(canvas, backdrop)
+    shelf = build_shelf(canvas)
     build_button(shelf, "Back to menu  (ends the run)", on_back, "quiet",
-                 (232, 52)).pack(side="right")
+                 (232, 56)).pack(side="right")
     if on_stop is not None:  # only a forced run can be ended from here with its report intact
-        build_button(shelf, "Stop and analyse", on_stop, size=(180, 52)).pack(
+        build_button(shelf, "Stop and analyse", on_stop, size=(180, 56)).pack(
             side="right", padx=(0, t.SPACE[2]))
     return {"frame": canvas, "status": status, "log": log}

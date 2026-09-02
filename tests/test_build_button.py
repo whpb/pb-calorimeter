@@ -1,6 +1,7 @@
 import pytest
 
-from functions.build_button import EDGE, VARIANTS, build_button
+from functions.build_button import BLUR, EDGE, VARIANTS, build_button
+from functions.panel_image import SHADOW_DROP
 
 # A withdrawn root delivers no events, so the wiring is checked by the bindings it registers
 # and the behaviour by .invoke(); the appearance is checked by eye against a screenshot.
@@ -22,9 +23,21 @@ def test_the_mouse_and_the_keyboard_both_reach_it(tk_root):
 
 
 def test_the_size_is_the_footprint_shadow_included(tk_root):
-    button = build_button(tk_root, "Go", lambda: None, size=(200, 52))
-    assert (button.faces[0].width(), button.faces[0].height()) == (200, 52)
-    assert EDGE * 2 < 52  # the pill still has room inside it
+    button = build_button(tk_root, "Go", lambda: None, size=(200, 56))
+    assert (button.faces[0].width(), button.faces[0].height()) == (200, 56)
+    assert EDGE * 2 < 56  # the pill still has room inside it
+
+
+def test_the_shadow_has_room_to_fall_in():
+    """Too small an edge and the blur is cropped, leaving a hard line under every button."""
+    assert EDGE >= BLUR * 2 + SHADOW_DROP
+
+
+def test_every_variant_is_the_same_height(tk_root):
+    """A shadowless button must not end up a different size from the one beside it."""
+    heights = {build_button(tk_root, "Go", lambda: None, v, (160, 56)).faces[0].height()
+               for v in VARIANTS}
+    assert heights == {56}
 
 
 def test_it_carries_a_second_face_to_hover_with(tk_root):

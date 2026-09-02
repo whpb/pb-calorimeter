@@ -18,7 +18,7 @@ FILES = ((".pdf", "Report", "file-text"), (".csv", "Results data", "table"),
 def build_results(parent, backdrop, report, on_menu, on_continue=None):
     """Links to everything a finished run produced, and the way back."""
     canvas = build_screen(parent, backdrop, "Run complete")
-    inner = build_card(canvas, backdrop, PANEL)
+    inner = build_card(canvas, PANEL)
     tk.Label(inner, text=report.stem, font=t.TEXT, foreground=t.MUTED, background=t.WHITE,
              anchor="w").pack(fill="x", pady=(0, t.SPACE[3]))
     for suffix, description, icon in FILES:
@@ -28,9 +28,9 @@ def build_results(parent, backdrop, report, on_menu, on_continue=None):
                            lambda chosen=path: open_path(chosen)).pack(fill="x", pady=t.SPACE[1])
     build_file_row(inner, "folder-open", "Containing folder", report.parent,
                    lambda: open_path(report.parent)).pack(fill="x", pady=(t.SPACE[2], 0))
-    shelf = build_shelf(canvas, backdrop)
-    build_button(shelf, "Back to menu", on_menu, "quiet", (150, 52)).pack(side="right")
+    shelf = build_shelf(canvas)
+    build_button(shelf, "Back to menu", on_menu, "quiet", (150, 56)).pack(side="right")
     if on_continue is not None:
-        build_button(shelf, "Continue testing", on_continue, size=(176, 52)).pack(
+        build_button(shelf, "Continue testing", on_continue, size=(176, 56)).pack(
             side="right", padx=(0, t.SPACE[2]))
     return canvas

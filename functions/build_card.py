@@ -1,29 +1,23 @@
 import tkinter as tk
 
-from PIL import Image, ImageTk
+from PIL import ImageTk
 
 from functions import tokens as t
 from functions.panel_image import PAD, panel_image
 
 
-def build_card(parent, backdrop, box, inset=t.SPACE[4], fill=t.WHITE, radius=t.RADIUS):
-    """A rounded panel on the window's backdrop; returns the frame to put the content in.
+def build_card(canvas, box, inset=t.SPACE[4], fill=t.WHITE, radius=t.RADIUS):
+    """A rounded panel drawn on the canvas; returns the frame to put the content in.
 
-    `box` is (x, y, width, height) in the parent's coordinates. The panel is a label carrying
-    a pre-rendered image - Tk has no rounded corners and no alpha - so the shadow is baked
-    against what sits behind it, and the content goes in a plain frame placed on top, where
-    ordinary pack() and grid() work as normal. `backdrop` is the window's background image,
-    or a flat colour when the panel is nested inside something already solid.
+    `box` is (x, y, width, height). The panel is a transparent-cornered canvas image rather
+    than a widget, so a neighbour's shadow blends into it and into the photograph - as an
+    opaque label the last card drawn would paint over the one beside it. Only the content is
+    a real widget, inset well inside the rounded corners, where pack() works as normal.
     """
     x, y, width, height = box
-    plate = (backdrop.crop((x - PAD, y - PAD, x + width + PAD, y + height + PAD))
-             if hasattr(backdrop, "crop")
-             else Image.new("RGB", (width + PAD * 2, height + PAD * 2), backdrop))
-    image = ImageTk.PhotoImage(panel_image((width, height), radius, fill, plate))
-    card = tk.Label(parent, image=image, borderwidth=0, highlightthickness=0)
-    card.image = image  # Tk keeps no reference of its own, and the image would be collected
-    card.place(x=x - PAD, y=y - PAD)
-    inner = tk.Frame(card, background=fill)
-    inner.place(x=PAD + inset, y=PAD + inset,
-                width=width - inset * 2, height=height - inset * 2)
+    image = ImageTk.PhotoImage(panel_image((width, height), radius, fill), master=canvas)
+    canvas.create_image(x - PAD, y - PAD, image=image, anchor="nw")
+    canvas.panels = [*getattr(canvas, "panels", []), image]  # Tk keeps no reference of its own
+    inner = tk.Frame(canvas, background=fill)
+    inner.place(x=x + inset, y=y + inset, width=width - inset * 2, height=height - inset * 2)
     return inner

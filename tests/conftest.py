@@ -116,6 +116,15 @@ def backdrop():
     return Image.new("RGB", (tokens.WIDTH, tokens.HEIGHT), tokens.CANVAS)
 
 
+@pytest.fixture
+def canvas(tk_root):
+    """The canvas every screen is built on: the cards are drawn into it, not placed over it."""
+    tkinter = pytest.importorskip("tkinter")
+    from functions import tokens
+
+    return tkinter.Canvas(tk_root, width=tokens.WIDTH, height=tokens.HEIGHT)
+
+
 def descendants(widget):
     """Every widget under this one. The screens nest content inside drawn cards."""
     for child in widget.winfo_children():

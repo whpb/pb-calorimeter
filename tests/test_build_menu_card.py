@@ -9,14 +9,14 @@ BOX = (48, CARDS_Y, grid_span(4), CARD_H)
 OPTION = ("player-play", "Force run", "Start and stop one run from here", "Start recording")
 
 
-def test_shows_the_heading_and_the_sentence(tk_root, backdrop):
-    inner = build_menu_card(tk_root, backdrop, BOX, OPTION, lambda: None)
+def test_shows_the_heading_and_the_sentence(canvas):
+    inner = build_menu_card(canvas, BOX, OPTION, lambda: None)
     assert OPTION[1] in text_of(inner) and OPTION[2] in text_of(inner)
 
 
-def test_the_action_is_the_only_thing_to_press(tk_root, backdrop):
+def test_the_action_is_the_only_thing_to_press(canvas):
     pressed = []
-    inner = build_menu_card(tk_root, backdrop, BOX, OPTION, lambda: pressed.append(1))
+    inner = build_menu_card(canvas, BOX, OPTION, lambda: pressed.append(1))
     buttons = drawn(inner)
     assert [b.cget("text") for b in buttons] == [OPTION[3]]
     buttons[0].invoke()
@@ -24,8 +24,8 @@ def test_the_action_is_the_only_thing_to_press(tk_root, backdrop):
 
 
 @pytest.mark.parametrize("option", OPTIONS, ids=[title for _, title, _, _ in OPTIONS])
-def test_the_real_content_fits_inside_the_card(tk_root, backdrop, option):
+def test_the_real_content_fits_inside_the_card(canvas, option):
     """Every sentence is packed into a fixed panel, so the longest one sets the card height."""
-    inner = build_menu_card(tk_root, backdrop, BOX, option, lambda: None)
+    inner = build_menu_card(canvas, BOX, option, lambda: None)
     inner.update_idletasks()
     assert packed_height(inner) <= int(inner.place_info()["height"])
