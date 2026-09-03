@@ -70,3 +70,8 @@ Experiment parameters
 // The steady-state curve only holds at equilibrium, so the energy integral above is
 // the robust number; the trace below shows how far each instant strayed.
 #image(run.plot, width: 100%)
+#pagebreak()
+
+= Note
+
+#image("/assets/sign-convention-diagram.png", width: 100%)

@@ -1,12 +1,13 @@
 import csv
-from pathlib import Path
+
+from functions.resolve_docs_folder import resolve_docs_folder
 
 CURVE_FILE = "pb_cooling_capacity.csv"
 
 
 def load_cooling_curve():
     """Load the plate temperature / heating output calibration sweep, sorted by temperature."""
-    path = Path(__file__).resolve().parent.parent / CURVE_FILE
+    path = resolve_docs_folder() / CURVE_FILE
     if not path.exists():
         raise FileNotFoundError(f"Cooling capacity curve not found at {path}")
     # the file carries a UTF-8 BOM and CRLF endings, hence utf-8-sig and newline=""

@@ -2,6 +2,7 @@ import tempfile
 import tkinter as tk
 from pathlib import Path
 
+from functions.bundled_path import bundled_path
 from functions.load_fonts import load_fonts
 
 load_fonts()  # before Tk exists: Tcl enumerates the font families once, at start-up
@@ -26,7 +27,7 @@ root.title("PB Calorimeter")
 root.geometry(f"{t.WIDTH}x{t.HEIGHT}")
 root.resizable(False, False)  # every screen is laid out on the grid at exactly this size
 apply_theme(root)
-backdrop = window_backdrop(Path(__file__).parent / "assets" / "background.png",
+backdrop = window_backdrop(bundled_path("assets") / "background.png",
                            (t.WIDTH, t.HEIGHT))
 icon = window_icon(root)
 if icon is not None:
@@ -100,10 +101,10 @@ def drain():
     root.after(DRAIN_MS, drain)
 
 
-def start(script, heading, arguments=(), on_stop=None):
+def start(mode, heading, arguments=(), on_stop=None):
     state["lines"], state["report"] = [], None
     state["heading"], state["stop"] = heading, on_stop
-    state["task"] = launch_task(script, arguments)
+    state["task"] = launch_task(mode, arguments)
     show_progress(heading)
     root.after(DRAIN_MS, drain)
 
@@ -116,7 +117,7 @@ def show_name():
 
 def start_experiment(name):
     # the name reaches force_run.py as argv[2] and becomes the run folder; blank is allowed
-    start("force_run.py", name.strip() or "Run an Experiment", [str(SENTINEL), name],
+    start("force_run", name.strip() or "Run an Experiment", [str(SENTINEL), name],
           request_stop)
 
 
@@ -124,9 +125,9 @@ def show_menu():
     stop_task()  # leaving testing mode stops the run; whatever it recorded is kept
     state["screen"], state["lines"], state["report"] = "menu", [], None
     show(build_menu(root, backdrop, (
-        lambda: start("main.py", "Testing mode"),
+        lambda: start("main", "Testing mode"),
         show_name,
-        lambda: start("reanalyse.py", "Re-analysis"),
+        lambda: start("reanalyse", "Re-analysis"),
         quit_app)))
 
 

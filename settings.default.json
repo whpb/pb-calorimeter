@@ -1,0 +1,18 @@
+{
+    "addresses": {
+        "controllers": {
+            "pb1": "192.168.111.222:502"      
+        },
+        "modbus": {
+            "programmer": {
+                "UserInput": ["pb1", "14954"],
+                "PlateTemp": ["pb1", "33280"],
+                "HeaterUtil": ["pb1", "43874"],
+                "MasterTemp": ["pb1", "33296"]
+            }
+        }
+    },
+    "SavePath": "auto",
+    "FileName": "auto",
+    "HeaterPower": 193
+}

@@ -5,7 +5,7 @@ from functions.resolve_results_root import resolve_results_root
 
 def test_auto_lands_under_documents(monkeypatch, settings, tmp_path):
     monkeypatch.setattr(Path, "home", staticmethod(lambda: tmp_path))
-    assert resolve_results_root(settings) == tmp_path / "Documents" / "PBCal"
+    assert resolve_results_root(settings) == tmp_path / "Documents" / "PBCal" / "results"
 
 
 def test_the_folder_is_created(monkeypatch, settings, tmp_path):
@@ -14,6 +14,7 @@ def test_the_folder_is_created(monkeypatch, settings, tmp_path):
 
 
 def test_an_explicit_path_is_used_as_given(settings, tmp_path):
+    """No results subfolder: an operator naming a share meant that folder, not one below."""
     settings["SavePath"] = str(tmp_path / "nested" / "results")
     root = resolve_results_root(settings)
     assert root == tmp_path / "nested" / "results" and root.is_dir()
@@ -29,3 +30,13 @@ def test_holds_no_run_folder_of_its_own(settings, tmp_path):
     """Resolving the root must never create a run folder - only resolve_save_path does that."""
     settings["SavePath"] = str(tmp_path / "results")
     assert list(resolve_results_root(settings).iterdir()) == []
+
+
+def test_the_results_sit_beside_the_docs_not_among_them(monkeypatch, settings, tmp_path):
+    """PBCal holds those two folders and nothing else, so runs cannot bury the editable files."""
+    from functions.resolve_docs_folder import resolve_docs_folder
+
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: tmp_path))
+    resolve_results_root(settings)
+    resolve_docs_folder()
+    assert {p.name for p in (tmp_path / "Documents" / "PBCal").iterdir()} == {"results", "docs"}

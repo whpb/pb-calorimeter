@@ -1,5 +1,6 @@
 import sys
 import time
+from pathlib import Path
 
 import matplotlib
 
@@ -186,6 +187,13 @@ def restore_streams():
     original = sys.stdout, sys.stderr
     yield
     sys.stdout, sys.stderr = original
+
+
+@pytest.fixture
+def docs_home(monkeypatch, tmp_path):
+    """A temporary home, so seeding the docs folder never touches the operator's real one."""
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: tmp_path))
+    return tmp_path
 
 
 @pytest.fixture

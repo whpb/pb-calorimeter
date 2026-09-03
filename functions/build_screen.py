@@ -1,11 +1,11 @@
 import tkinter as tk
-from pathlib import Path
 
 from PIL import Image, ImageTk
 
 from functions import tokens as t
+from functions.bundled_path import bundled_path
 
-ASSETS = Path(__file__).resolve().parent.parent / "assets"
+ASSETS = bundled_path("assets")
 LOGO, LOGO_Y = 48, 34
 TITLE_X = t.MARGIN + LOGO + t.SPACE[3]
 

@@ -29,7 +29,7 @@ def test_a_repeated_name_takes_the_next_number(settings, tmp_path):
 def test_auto_savepath_lands_under_documents(monkeypatch, settings, tmp_path):
     monkeypatch.setattr(Path, "home", staticmethod(lambda: tmp_path))
     path = module.resolve_save_path(settings)
-    assert path.parent.parent == tmp_path / "Documents" / "PBCal"
+    assert path.parent.parent == tmp_path / "Documents" / "PBCal" / "results"
 
 
 def test_no_name_falls_back_to_a_timestamp(monkeypatch, settings, tmp_path):

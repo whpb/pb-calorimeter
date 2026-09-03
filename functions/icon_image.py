@@ -1,10 +1,9 @@
-from pathlib import Path
-
 from PIL import Image, ImageDraw, ImageFont
 
+from functions.bundled_path import bundled_path
 from functions.icon_glyph import icon_glyph
 
-TTF = Path(__file__).resolve().parent.parent / "assets" / "tabler-icons.ttf"
+TTF = bundled_path("assets") / "tabler-icons.ttf"
 
 
 def icon_image(name, size, colour):

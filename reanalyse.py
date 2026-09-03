@@ -1,5 +1,12 @@
 import sys
 
+import matplotlib
+
+# before pyplot is imported: with no interactive backend matplotlib falls back
+# to Agg in silence, plt.show() returns at once and the operator never sees the
+# selection window - leaving a report built on zones nobody chose
+matplotlib.use("TkAgg")
+
 from functions.analyse_samples import analyse_samples
 from functions.choose_results_file import choose_results_file
 from functions.load_samples import load_samples

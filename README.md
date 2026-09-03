@@ -5,7 +5,7 @@ A tool to enable indirect calorimetric measurements on the Polar Bear.
 
 ## Usage
 ### Starting the program
-Make sure to run the polling script before beginning. To start, double click *App.bat*.
+To start, open the app via the executable (*.exe*).
 
 This opens a menu with the following options:
 
@@ -19,8 +19,6 @@ This opens a menu with the following options:
 While a run or a re-analysis is in progress, the screen shows its output as it happens. *Back to menu* ends it; anything already recorded is kept. Only one option can run at a time.
 
 When a report is produced, a panel appears with links to each of the files it generated.
-
-*Run.bat* and *Reanalyse.bat* start testing mode and re-analysis directly, without the menu.
 
 ### Naming an experiment
 *Run an Experiment* asks what the experiment is called before it starts recording. The name becomes the folder that every file from that run is saved in, and the name of each of those files.
@@ -40,13 +38,13 @@ Available functions:
 
 Recording continues for as long as User Value 1 is held at 1, and ends when it changes. Set it back to 1 to record another run; each run is written to its own folder.
 
-*Run an Experiment* does not use User Value 1 at all. It never writes to the controller.
+Note that *Run an Experiment* does not listen to User Value 1 at all; changes will have no effect.
 
 #### Calorimetric measurement
 
 This software applies the principle of conservation of energy to estimate the energy change caused by a source or sink placed on the plate.
 
-Before starting, the Polar Bear is instructed to hold a control temperature. This provides a stable baseline from which deviations can be measured. Choose a control temperature above about -29 C; below this the cooling curve flattens and a small temperature error costs a large error in power.
+Before starting, the Polar Bear is instructed to hold a control temperature. This provides a stable baseline from which deviations can be measured. Choose a control temperature above approximately -29 C; below this cooling performance is less predictable.
 
 The measurement comprises three steps:
 
@@ -69,7 +67,7 @@ Where Q_baseline is Q_abs averaged over a zone selected by the user, E_t-1 is th
 
 ##### Selecting the zones
 
-When a force run or a re-analysis finishes, a window opens showing two plots on a shared time axis:
+When a manual run or a re-analysis finishes, a window opens showing two plots on a shared time axis:
 
 - **Net power (Q_abs)**, on which the **baseline zone** is selected. The plate must be unloaded for the whole of this zone.
 - **Master probe temperature**, on which the **experiment zone** is selected. This is the period over which the energy is totalled. If no master probe reading is available, plate temperature is shown instead.
@@ -91,7 +89,7 @@ The report includes:
 Total energy is the headline figure. The cooling curve describes the machine at equilibrium, so an instantaneous Q_relative is only meaningful once the plate has settled; the energy total is unaffected because the transient errors largely cancel.
 
 ### Settings
-To change the program settings, open the file `settings.json` in a text editor.
+To change the program settings, open the file `settings.json` in a text editor. Settings files are stored in the folder `Documents/PBCal/docs`.
 
 #### Controller & MODBUS addresses
 Hardware addresses are stored in the following structure:
@@ -113,11 +111,11 @@ Hardware addresses are stored in the following structure:
 "MasterTemp" is the sample probe. Its address may be set to `null` if no probe is fitted; the column is then left blank and plate temperature is used in its place when selecting the experiment zone.
 
 #### File handling
-Every run is saved in its own folder inside the results directory, which is `Documents/PBCal` by default. The folder takes the name of the experiment, or, where none was given, the date and time in the format `YYYY-MM-DDThh-mm-ss` (based loosely on ISO 8601).
+Every run is saved in its own folder inside the results directory, which is `Documents/PBCal/results` by default. The folder takes the name of the experiment, or, where none was given, the date and time in the format `YYYY-MM-DDThh-mm-ss` (based loosely on ISO 8601).
 
 The results file takes the name of its folder, and a report adds files of that name beside it: the work curve (`.png`), the report itself (`.pdf`), and the data and template it was built from (`.json` and `.typ`). Re-analysing a file writes a new set named `<original name> reanalysis 1` into the same folder, leaving the original untouched.
 
-    Documents/PBCal
+    Documents/PBCal/results
     ├── Copper block
     │   ├── Copper block.csv
     │   ├── Copper block.pdf
@@ -126,12 +124,9 @@ The results file takes the name of its folder, and a report adds files of that n
     │   ├── Copper block.typ
     │   └── logs
     ├── Copper block 1        <- a second run of the same name
-    ├── 2026-09-02T15-20-35   <- a run with no name given
-    └── assets
+    └── 2026-09-02T15-20-35   <- a run with no name given
 
 Console output is also saved, under `logs`. An experiment and a re-analysis each keep their log inside the run's own folder; testing mode keeps one log for the whole session, in `logs` at the top of the results directory.
-
-`assets` holds the artwork the reports are built from. One copy is shared by every run, and it is refreshed each time a report is produced.
 
 The available settings are listed below.
 

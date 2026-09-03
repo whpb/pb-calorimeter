@@ -1,17 +1,23 @@
 import subprocess
 import sys
 import threading
-from pathlib import Path
 from queue import Queue
 
-REPO = Path(__file__).resolve().parent.parent
+from functions.bundled_path import FROZEN, bundled_path
 
 
-def launch_task(script, arguments=()):
-    """Run a script as a child process, streaming its output onto a queue a line at a time."""
-    # -u is essential: piped stdout is block buffered otherwise, and the log arrives in lumps
-    process = subprocess.Popen([sys.executable, "-u", str(REPO / script), *arguments],
-                               cwd=REPO, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+def launch_task(mode, arguments=()):
+    """Run one of the program's other modes as a child process, streaming its output.
+
+    Compiled there is no .py file left to hand an interpreter, so the exe relaunches itself
+    with --run and launcher.py dispatches; from source it still runs the script directly.
+    """
+    # -u is essential from source: piped stdout is block buffered otherwise, and the log
+    # arrives in lumps. Compiled it is not accepted, and launcher.py line-buffers instead.
+    command = ([sys.executable, "--run", mode] if FROZEN
+               else [sys.executable, "-u", str(bundled_path(f"{mode}.py"))])
+    process = subprocess.Popen([*command, *arguments],
+                               cwd=bundled_path(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                text=True, bufsize=1,
                                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
     lines = Queue()

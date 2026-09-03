@@ -29,7 +29,7 @@ def test_starts_the_dialog_in_the_results_folder(monkeypatch, settings, tmp_path
     seen = {}
     _quiet_dialog(monkeypatch, "", seen)
     module.choose_results_file([], settings)
-    assert seen["initialdir"] == tmp_path / "Documents" / "PBCal"
+    assert seen["initialdir"] == tmp_path / "Documents" / "PBCal" / "results"
     assert seen["filetypes"] == [("Results CSV", "*.csv")]
 
 
@@ -38,7 +38,7 @@ def test_asking_creates_no_run_folder(monkeypatch, settings, tmp_path):
     monkeypatch.setattr(Path, "home", staticmethod(lambda: tmp_path))
     _quiet_dialog(monkeypatch, "")
     module.choose_results_file([], settings)
-    assert list((tmp_path / "Documents" / "PBCal").iterdir()) == []
+    assert list((tmp_path / "Documents" / "PBCal" / "results").iterdir()) == []
 
 
 def test_returns_nothing_when_the_dialog_is_cancelled(monkeypatch, settings, tmp_path):

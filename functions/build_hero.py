@@ -1,11 +1,11 @@
 import tkinter as tk
-from pathlib import Path
 
 from PIL import Image, ImageTk
 
 from functions import tokens as t
+from functions.bundled_path import bundled_path
 
-ASSETS = Path(__file__).resolve().parent.parent / "assets"
+ASSETS = bundled_path("assets")
 LOGO, LOGO_Y = 126, 55
 TITLE_X = t.MARGIN + LOGO + t.SPACE[4]
 # tall enough to hold the corner, short enough that its base clears the cards at y=236

@@ -1,8 +1,8 @@
-from pathlib import Path
-
 from PIL import Image, ImageTk
 
-LOGO = Path(__file__).resolve().parent.parent / "assets" / "polarbear-logo.png"
+from functions.bundled_path import bundled_path
+
+LOGO = bundled_path("assets") / "polarbear-logo.png"
 SIZE = 64
 
 

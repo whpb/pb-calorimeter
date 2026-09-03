@@ -1,5 +1,6 @@
 import ctypes
-from pathlib import Path
+
+from functions.bundled_path import bundled_path
 
 FR_PRIVATE = 0x10  # available to this process only, so nothing is installed on the rig
 BUNDLED = ("Lato-Regular.ttf", "Lato-Bold.ttf", "Lato-Black.ttf")
@@ -14,7 +15,7 @@ def load_fonts():
     Must be called before tkinter.Tk() exists: Tk enumerates the font families once, when
     the interpreter's Tcl is initialised, and will not see anything added afterwards.
     """
-    assets = Path(__file__).resolve().parent.parent / "assets"
+    assets = bundled_path("assets")
     loaded = []
     for name in BUNDLED:
         path = assets / name

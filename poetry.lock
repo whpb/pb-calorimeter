@@ -401,6 +401,24 @@ pyparsing = ">=3"
 python-dateutil = ">=2.7"
 
 [[package]]
+name = "nuitka"
+version = "4.2"
+description = "Python compiler with full language support and CPython compatibility"
+optional = false
+python-versions = "*"
+groups = ["dev"]
+files = [
+    {file = "nuitka-4.2.tar.gz", hash = "sha256:b6112c10a5d0431e2b4309780257a03049a42605290e83f771d57a067a387410"},
+]
+
+[package.extras]
+all = ["imageio", "setuptools (>=42)", "toml", "zstandard (>=0.15)"]
+app = ["zstandard (>=0.15)"]
+build-wheel = ["setuptools (>=42)", "toml", "wheel"]
+icon-conversion = ["imageio"]
+onefile = ["zstandard (>=0.15)"]
+
+[[package]]
 name = "numpy"
 version = "2.5.2"
 description = "Fundamental package for array computing in Python"
@@ -486,18 +504,6 @@ groups = ["main", "dev"]
 files = [
     {file = "packaging-26.3-py3-none-any.whl", hash = "sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"},
     {file = "packaging-26.3.tar.gz", hash = "sha256:94edc256424af38762eb31306eed28beb9f0efc50a8837492c9d6fd6004aed79"},
-]
-
-[[package]]
-name = "pathlib"
-version = "1.0.1"
-description = "Object-oriented filesystem paths"
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "pathlib-1.0.1-py3-none-any.whl", hash = "sha256:f35f95ab8b0f59e6d354090350b44a80a80635d22efdedfa84c7ad1cf0a74147"},
-    {file = "pathlib-1.0.1.tar.gz", hash = "sha256:6940718dfc3eff4258203ad5021090933e5c04707d5ca8cc9e73c94a7894ea9f"},
 ]
 
 [[package]]
@@ -750,4 +756,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13"
-content-hash = "5db8f7c7de90e5f8d6aaef6868d32c744f9e658492bb2713280b578edc55f6be"
+content-hash = "f1896d2025145ca729c8f7450158ffa6c15040c92cd832450f3e934d96e39e29"

@@ -3,7 +3,9 @@ import json
 import pytest
 
 from functions import compile_report as module
+from functions.bundled_path import bundled_path
 from functions.plot_work_curve import plot_work_curve
+from functions.resolve_docs_folder import resolve_docs_folder
 
 ZONE = {"start_min": 0.0, "end_min": 2.5, "duration_min": 2.5, "samples": 3,
         "mean": 1.2, "sd": 0.4, "spread": 1.1}
@@ -22,7 +24,7 @@ SUMMARY = {
 
 
 @pytest.fixture
-def run_folder(tmp_path):
+def run_folder(docs_home, tmp_path):
     """A run's own folder, inside the results root, holding the work-curve PNG."""
     folder = tmp_path / "Copper block"
     folder.mkdir()
@@ -35,7 +37,7 @@ def run_folder(tmp_path):
     return save_path
 
 
-def test_renders_the_repo_template_to_a_pdf(run_folder):
+def test_renders_the_seeded_template_to_a_pdf(run_folder):
     """The real template must survive a real summary; a Typst error is silent otherwise."""
     pdf = module.compile_report(SUMMARY, run_folder)
     assert pdf == run_folder.with_suffix(".pdf")
@@ -44,8 +46,15 @@ def test_renders_the_repo_template_to_a_pdf(run_folder):
 
 def test_copies_the_template_beside_the_results(run_folder):
     module.compile_report(SUMMARY, run_folder)
-    template = module.Path(__file__).resolve().parent.parent / module.TEMPLATE
+    template = resolve_docs_folder() / module.TEMPLATE
     assert run_folder.with_suffix(".typ").read_text() == template.read_text()
+
+
+def test_the_operator_can_relay_out_the_page_without_a_rebuild(run_folder):
+    """The template is seeded into the docs folder precisely so it can be edited there."""
+    (resolve_docs_folder() / module.TEMPLATE).write_text("= Edited", encoding="utf-8")
+    assert module.compile_report(SUMMARY, run_folder).read_bytes().startswith(b"%PDF")
+    assert run_folder.with_suffix(".typ").read_text() == "= Edited"
 
 
 def test_writes_the_summary_as_json(run_folder):
@@ -53,27 +62,23 @@ def test_writes_the_summary_as_json(run_folder):
     assert json.loads(run_folder.with_suffix(".json").read_text(encoding="utf-8")) == SUMMARY
 
 
-def test_reports_a_broken_template_without_raising(run_folder, tmp_path, monkeypatch, capsys):
-    broken = tmp_path / "broken.typ"
-    broken.write_text("#panic('nope')", encoding="utf-8")
-    monkeypatch.setattr(module, "TEMPLATE", str(broken))
+def test_reports_a_broken_template_without_raising(run_folder, capsys):
+    (resolve_docs_folder() / module.TEMPLATE).write_text("#panic('nope')", encoding="utf-8")
     assert module.compile_report(SUMMARY, run_folder) is None
     assert "Typst failed" in capsys.readouterr().out
 
 
-def test_leaves_the_inputs_behind_when_typst_fails(run_folder, tmp_path, monkeypatch, capsys):
+def test_leaves_the_inputs_behind_when_typst_fails(run_folder):
     """A failed render must not cost the operator the numbers from the run."""
-    broken = tmp_path / "broken.typ"
-    broken.write_text("#panic('nope')", encoding="utf-8")
-    monkeypatch.setattr(module, "TEMPLATE", str(broken))
+    (resolve_docs_folder() / module.TEMPLATE).write_text("#panic('nope')", encoding="utf-8")
     module.compile_report(SUMMARY, run_folder)
     assert run_folder.with_suffix(".json").exists() and run_folder.with_suffix(".typ").exists()
 
 
-def test_ships_the_repo_assets_with_the_report(run_folder):
+def test_ships_the_bundled_assets_with_the_report(run_folder):
     """The template can only read files under the Typst root, so assets/ has to travel."""
     module.compile_report(SUMMARY, run_folder)
-    repo_assets = module.Path(__file__).resolve().parent.parent / module.ASSETS
+    repo_assets = bundled_path(module.ASSETS)
     copied = run_folder.parent.parent / module.ASSETS
     assert {path.name for path in copied.iterdir()} == {path.name for path in repo_assets.iterdir()}
 
