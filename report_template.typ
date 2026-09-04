@@ -74,4 +74,12 @@ Experiment parameters
 
 = Note
 
+Sign convention:
+
+Exothermic: +ve — heat transferred from reaction to plate
+
+Endothermic: −ve — heat transferred from plate to reaction
+
+The reported data from the Polar Bear Calorimeter is Energy transferred to/from the Polar Bear rather than ΔH of a reaction.
+
 #image("/assets/sign-convention-diagram.png", width: 100%)
