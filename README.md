@@ -3,6 +3,8 @@ Written by WB, 25/08/2026.
 ## Summary
 A tool to enable indirect calorimetric measurements on the Polar Bear. 
 
+Source available on [GitHub](https://www.github.com/whpb/pb-calorimeter).
+
 ## Usage
 ### Starting the program
 To start, open the app via the executable (*.exe*).
