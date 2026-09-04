@@ -14,7 +14,7 @@ def launch_task(mode, arguments=()):
     """
     # -u is essential from source: piped stdout is block buffered otherwise, and the log
     # arrives in lumps. Compiled it is not accepted, and launcher.py line-buffers instead.
-    command = ([sys.executable, "--run", mode] if FROZEN
+    command = ([bundled_path("PBCal.exe"), "--run", str(mode)] if FROZEN
                else [sys.executable, "-u", str(bundled_path(f"{mode}.py"))])
     process = subprocess.Popen([*command, *arguments],
                                cwd=bundled_path(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
